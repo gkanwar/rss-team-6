@@ -5,7 +5,7 @@ project(rss_msgs)
 # Package's build-time dependencies
 find_package(catkin REQUIRED rosjava_build_tools)
 find_package(catkin REQUIRED
-  COMPONENTS message_generation std_msgs)
+  COMPONENTS message_generation)
 
 # Declare message files to build
 add_message_files(FILES
@@ -29,5 +29,5 @@ generate_messages()
 
 # Runtime dependencies
 catkin_package(
-  CATKIN_DEPENDS message_runtime std_msgs
+  CATKIN_DEPENDS message_runtime
 )
