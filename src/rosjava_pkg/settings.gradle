@@ -1,0 +1,2 @@
+include 'rosjava_prj_example'
+include 'rosjava_msg_example'

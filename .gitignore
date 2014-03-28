@@ -3,3 +3,4 @@ build
 bin
 devel
 msg_gen
+\.gradle
