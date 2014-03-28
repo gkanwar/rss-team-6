@@ -1,4 +1,4 @@
-package Motor;
+package motion.Motor;
 
 import MotorControl.RobotBase;
 import MotorControl.RobotVelocityController;

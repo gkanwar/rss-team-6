@@ -1,4 +1,4 @@
-package Motor;
+package motion.Motor;
 
 import org.ros.message.MessageListener;
 

@@ -1,4 +1,4 @@
-package Servo;
+package motion.Servo;
 
 import MotorControl.RobotBase;
 import orc.Orc;

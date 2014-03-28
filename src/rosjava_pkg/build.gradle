@@ -47,7 +47,7 @@ subprojects {
             println "Creating $binDir directory"
             binDir.mkdirs()
         }
-        File link = new File(binDir,"execute")
+        File link = new File(binDir,"${project.name}-execute")
         if (link.exists()) {
             link.delete();
         }

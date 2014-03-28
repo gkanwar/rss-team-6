@@ -4,10 +4,11 @@
   <node name="rep" pkg="topic_tools" type="relay" args="/gscam/image_raw /rss/video" machine="gurtej"/>
 
   <node name="view" pkg="image_view" type="image_view" args="image:=/rss/video" machine="gurtej" />
-  <node name="gui" pkg="rosjava_pkg" type="execute" args="VisualServo.VisionGUI" machine="gurtej" output="screen" />
-  
+  <node name="gui" pkg="rosjava_pkg" type="lab4-execute" args="VisualServo.VisionGUI" machine="gurtej" output="screen" />
+  <node name="mtn" pkg="rosjava_pkg" type="motion-execute" args="motion.Listener" machine="gurtej" />
+
   <!--<node name="lis" pkg="rosjava_bootstrap" type="run.py" args="uorc_listener Listener" machine="netbook" /> -->
   <!--<node name="pub" pkg="rosjava_bootstrap" type="run.py" args="uorc_publisher Publisher" machine="netbook" />-->
-  <!--<node name="odo" pkg="rosjava_bootstrap" type="run.py" args="odometry odometry.Odometry" machine="netbook" />-->
+  <node name="odo" pkg="rosjava_pkg" type="odometry-execute" args="odometry.Odometry" machine="gurtej" />
   <!--<node name="vid" pkg="gscam" type="gscam" machine="netbook" /> -->
 </launch>

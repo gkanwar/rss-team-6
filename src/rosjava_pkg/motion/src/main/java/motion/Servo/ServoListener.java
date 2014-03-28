@@ -1,4 +1,4 @@
-package Servo;
+package motion.Servo;
 
 import orc.Orc;
 import orc.Servo;
