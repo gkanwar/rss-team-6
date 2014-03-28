@@ -1,2 +1,14 @@
+include 'lab4'
+/*
+include 'lab5'
+include 'lab6'
+include 'lab7'
+include 'motion'
+include 'odometry'
+include 'uorc_publisher'
+include 'orc_utils'
+*/
+
+/*
 include 'rosjava_prj_example'
-include 'rosjava_msg_example'
+*/

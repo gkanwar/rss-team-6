@@ -24,6 +24,12 @@ buildscript {
 apply plugin: 'catkin'
 project.catkin.tree.generate()
 
+project.catkin.tree.generate()
+
+project.catkin.tree.generate()
+
+project.catkin.tree.generate()
+
 
 
 allprojects {
@@ -31,7 +37,7 @@ allprojects {
       A github url provides a good standard unique name for your project
       Example below, but you may wish to switch to your own unique url.
     */
-    group 'com.github.rosjava.rosjava_pkg'
+    group 'com.github.rosjava.rosjava_msg_pkg'
     version = project.catkin.pkg.version
 }
 
@@ -41,20 +47,6 @@ subprojects {
       to see what is going on under the hood.
     */
     apply plugin: 'ros-java'
-    task deployApp(dependsOn: 'installApp') << {
-        File binDir = new File(project.projectDir, '/bin')
-        if (! binDir.isDirectory()) {
-            println "Creating $binDir directory"
-            binDir.mkdirs()
-        }
-        File link = new File(binDir,"execute")
-        if (link.exists()) {
-            link.delete();
-        }
-        File target = new File(project.projectDir, "build/install/$project.name/bin/$project.name")
-        println "Creating symlink from $link.absolutePath to $target.absolutePath"
-        ant.symlink(link: link.absolutePath, resource: target.absolutePath)
-    }
 }
 
 /*

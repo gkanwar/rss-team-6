@@ -1,0 +1,9 @@
+dependencies {
+  compile 'org.ros.rosjava_bootstrap:message_generation:[0.1,)'
+}
+
+try {
+    project.catkin.tree.generateMessageArtifact(project, project.name)
+} catch (NullPointerException e) {
+    println("Couldn't find ${project.name} on the ROS_PACKAGE_PATH")
+}

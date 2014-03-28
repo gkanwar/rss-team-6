@@ -1,0 +1,4 @@
+<launch>
+  <machine name="gurtej" address="localhost" user="gurtej" password="" 
+           env-loader="$(find rosjava_pkg)/env-loader.sh" />
+</launch>
