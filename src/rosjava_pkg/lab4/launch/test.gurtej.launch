@@ -10,5 +10,5 @@
   <!--<node name="lis" pkg="rosjava_bootstrap" type="run.py" args="uorc_listener Listener" machine="netbook" /> -->
   <node name="pub" pkg="rosjava_pkg" type="uorc_publisher-execute" args="Publisher" machine="gurtej" />
   <node name="odo" pkg="rosjava_pkg" type="odometry-execute" args="odometry.Odometry" machine="gurtej" />
-  <!--<node name="vid" pkg="gscam" type="gscam" machine="netbook" /> -->
+  <node name="vid" pkg="gscam" type="gscam" machine="gurtej" />
 </launch>
