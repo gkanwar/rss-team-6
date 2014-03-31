@@ -1,4 +1,5 @@
 <launch>
   <machine name="gurtej" address="localhost" user="gurtej" password="" 
            env-loader="$(find rosjava_pkg)/env-loader.sh" />
+  <env name="GSCAM_CONFIG" value="v4l2src device=/dev/video0 ! video/x-raw-rgb, width=160, height=120 ! ffmpegcolorspace" />
 </launch>
