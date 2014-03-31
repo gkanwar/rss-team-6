@@ -42,6 +42,9 @@
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>rosjava_build_tools</build_depend>
   <build_depend>rosjava_msg_example</build_depend>
+  <build_depend>lab5_msgs</build_depend>
+  <build_depend>lab6_msgs</build_depend>
+  <build_depend>rss_msgs</build_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
@@ -52,7 +55,4 @@
     <!-- Other tools can request additional information be placed here -->
 
   </export>
-<build_depend>lab5_msgs</build_depend>
-<build_depend>lab6_msgs</build_depend>
-<build_depend>rss_msgs</build_depend>
 </package>
