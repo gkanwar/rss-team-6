@@ -1,11 +1,11 @@
 include 'lab4'
 include 'odometry'
 include 'motion'
+include 'uorc_publisher'
 /*
 include 'lab5'
 include 'lab6'
 include 'lab7'
-include 'uorc_publisher'
 include 'orc_utils'
 */
 
