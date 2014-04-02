@@ -9,5 +9,10 @@ include 'vision'
 */
 
 /*
+Uncomment once path_planning has code
+include 'path_planning'
+*/
+
+/*
 include 'rosjava_prj_example'
 */
