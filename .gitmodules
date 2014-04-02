@@ -1,0 +1,3 @@
+[submodule "src/rosjava_pkg/motion"]
+	path = src/rosjava_pkg/motion
+	url = git@github.com:gkanwar/rss-team-6-motion.git
