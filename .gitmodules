@@ -1,9 +1,9 @@
 [submodule "src/rosjava_pkg/motion"]
 	path = src/rosjava_pkg/motion
-	url = git@github.com:gkanwar/rss-team-6-motion.git
+	url = git@github.com:rss-2014-team-6/rss-team-6-motion.git
 [submodule "src/rosjava_pkg/sensing"]
 	path = src/rosjava_pkg/sensing
-	url = git@github.com:gkanwar/rss-team-6-sensing.git
+	url = git@github.com:rss-2014-team-6/rss-team-6-sensing.git
 [submodule "src/rosjava_pkg/odometry"]
 	path = src/rosjava_pkg/odometry
-	url = git@github.com:gkanwar/rss-team-6-odometry.git
+	url = git@github.com:rss-2014-team-6/rss-team-6-odometry.git
