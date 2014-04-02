@@ -13,3 +13,6 @@
 [submodule "src/rosjava_pkg/path_planning"]
 	path = src/rosjava_pkg/path_planning
 	url = git@github.com:rss-2014-team-6/rss-team-6-path-planning.git
+[submodule "src/rosjava_pkg/localization"]
+	path = src/rosjava_pkg/localization
+	url = git@github.com:rss-2014-team-6/rss-team-6-localization.git

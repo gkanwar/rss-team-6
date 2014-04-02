@@ -14,5 +14,10 @@ include 'path_planning'
 */
 
 /*
+Uncomment once localization has code
+include 'localization'
+*/
+
+/*
 include 'rosjava_prj_example'
 */
