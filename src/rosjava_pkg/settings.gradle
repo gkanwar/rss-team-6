@@ -19,5 +19,10 @@ include 'localization'
 */
 
 /*
+Uncomment once localization has code
+include 'state_machine'
+*/
+
+/*
 include 'rosjava_prj_example'
 */
