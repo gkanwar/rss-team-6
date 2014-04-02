@@ -13,10 +13,7 @@ Uncomment once path_planning has code
 include 'path_planning'
 */
 
-/*
-Uncomment once localization has code
 include 'localization'
-*/
 
 /*
 Uncomment once localization has code
