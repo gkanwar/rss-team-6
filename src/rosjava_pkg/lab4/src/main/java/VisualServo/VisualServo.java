@@ -1,5 +1,6 @@
 package VisualServo;
 
+import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.ros.message.MessageListener;
@@ -76,6 +77,7 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
         while (true) {
             Image src = null;
             try {
+		//System.out.println("size: " + visionImage.take().length);
                 src = new Image(visionImage.take(), width, height);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -84,6 +86,7 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
 
             Image dest = new Image(src);
 
+	    //System.out.println("blobtrack apply");
             blobTrack.apply(src, dest);
 
             // update newly formed vision message
@@ -154,6 +157,21 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
                 }
                 assert ((int) message.getWidth() == width);
                 assert ((int) message.getHeight() == height);
+		if ((int) message.getWidth() != width) {
+		    throw new RuntimeException ("Widths don't match: " + message.getWidth() + "," + width);
+		}
+		if ((int) message.getHeight() != height) {
+		    throw new RuntimeException ("Heights don't match: " + message.getHeight() + "," + height);
+		}
+		if (rgbData.length != 3 * width * height) {
+		    /*
+		    throw new RuntimeException ("Extra data received: " + rgbData.length + "," + 3*width*height);
+		    */
+		    // Strip the first n characters to make the length right (yay hacks! P.S. don't let tej see this code)
+		    byte[] rgbDataNew = Arrays.copyOfRange(rgbData, rgbData.length - 3*width*height, rgbData.length);
+		    rgbData = rgbDataNew;
+		}
+		//System.out.println("rgbData length: " + rgbData.length); 
                 handle(rgbData);
             }
         });

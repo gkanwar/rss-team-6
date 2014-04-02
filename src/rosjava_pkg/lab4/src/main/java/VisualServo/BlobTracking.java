@@ -323,7 +323,7 @@ public class BlobTracking {
 	    int val = (int) (255 * hsbvals[2]);
 
 	    // Green!
-	    if (hue > 60 && hue < 75 && sat >= 200) return true;
+	    if (hue > 60 && hue < 100 && sat >= 200 && val >= 100 ) return true;
 
 	    // GREEN?
 	    //if (hue > 85 && hue < 110) return true;
