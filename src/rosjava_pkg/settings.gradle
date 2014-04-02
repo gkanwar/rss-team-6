@@ -2,11 +2,10 @@ include 'lab4'
 include 'odometry'
 include 'motion'
 include 'sensing'
+
 /*
-include 'lab5'
-include 'lab6'
-include 'lab7'
-include 'orc_utils'
+Uncomment once vision has code
+include 'vision'
 */
 
 /*
