@@ -1,0 +1,5 @@
+<launch>
+  <machine name="workstation" address="workstation" user="rss-student" password="RedSolidSquid6!" env-loader="~/rss-team-6/src/rosjava_pkg/env-loader.sh" />
+
+  <machine name="eeepc2" address="eeepc2" user="rss-student" password="RedSolidSquid6!" env-loader="~/rss-team-6/src/rosjava_pkg/env-loader-eeepc.sh" />
+</launch>
