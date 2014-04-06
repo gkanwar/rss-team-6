@@ -1,2 +1,1 @@
-float64 range
-bool isFront
+float64[12] sonarValues
