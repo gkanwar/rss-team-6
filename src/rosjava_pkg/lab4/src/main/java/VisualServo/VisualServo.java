@@ -29,7 +29,7 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
      * The blob tracker.
      * </p>
      **/
-    private BlobTracking blobTrack = null;
+    private BlobTrackingChallenge blobTrack = null;
 
     private VisionGUI gui;
     private ArrayBlockingQueue<byte[]> visionImage = new ArrayBlockingQueue<byte[]>(
@@ -91,7 +91,8 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
 
             // update newly formed vision message
             gui.setVisionImage(dest.toArray(), width, height);
-	
+
+	    /*	
             // Begin Student Code
             double range=1;
             double bearing=0;
@@ -116,6 +117,7 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
 	    //System.out.println("Publishing ballLocationMsg");
             ballLocationPub.publish(msg);
             // End Student Code
+	    */
         }
     }
 
@@ -129,7 +131,7 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
      */
     @Override
     public void onStart(final ConnectedNode node) {
-        blobTrack = new BlobTracking(width, height);
+        blobTrack = new BlobTrackingChallenge(width, height);
 
         // Begin Student Code
 
