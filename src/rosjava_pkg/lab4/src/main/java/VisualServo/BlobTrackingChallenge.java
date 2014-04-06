@@ -101,7 +101,7 @@ public class BlobTrackingChallenge {
 		for (Blob blob : discoveredBlobs) {
 			Set<Point2D.Double> blobPoints = blob.getPoints();
 			System.out.println("\tBlob of size " + blobPoints.size());
-			if (blobPoints.size() > 500) {
+			if (blobPoints.size() > 200 && blobPoints.size() < 3000) {
 				for (Point2D.Double point : blobPoints) {
 					dest.setPixel((int) point.x, (int) point.y, (byte) 0,
 							(byte) 255, (byte) 0);
@@ -149,6 +149,8 @@ public class BlobTrackingChallenge {
 			Point2D.Double point = pointsToTest.remove();
 			if (!currentBlob.contains(point)) {
 				currentBlob.add(point);
+				
+				// System.out.println("Current blob just added : " + point.x + " " + point.y);
 
 				// Add the surrounding points with similar hues to the queue of
 				// points to examine
@@ -163,7 +165,7 @@ public class BlobTrackingChallenge {
 						if ((xPos >= 0 && xPos <= width - 1)
 								&& (yPos >= 0 && yPos <= height - 1)
 								&& (Math.abs(hues[yPos][xPos]
-										- hues[yPos][xPos]) <= hueThreshold)) {
+										- hues[(int)point.y][(int)point.x]) <= hueThreshold)) {
 							pointsToTest.add(new Point2D.Double(xPos, yPos));
 						}
 					}
