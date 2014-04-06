@@ -1,4 +1,4 @@
-include 'lab4'
+//include 'lab4'
 include 'odometry'
 include 'motion'
 include 'sensing'
@@ -17,10 +17,8 @@ include 'path_planning'
 include 'localization'
 */
 
-/*
-Uncomment once localization has code
 include 'state_machine'
-*/
+
 
 /*
 include 'rosjava_prj_example'
