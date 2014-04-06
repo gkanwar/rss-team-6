@@ -2,19 +2,11 @@ include 'lab4'
 include 'odometry'
 include 'motion'
 include 'sensing'
+include 'path_planning'
 
 /*
 Uncomment once vision has code
 include 'vision'
-*/
-
-/*
-Uncomment once path_planning has code
-include 'path_planning'
-*/
-
-/*
-include 'localization'
 */
 
 /*
