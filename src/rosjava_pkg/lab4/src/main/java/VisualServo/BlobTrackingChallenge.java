@@ -76,8 +76,8 @@ public class BlobTrackingChallenge {
 		Image blurredImage = new Image(blurredPixels, w, h);
 
 		// Use either original or blurred image for processing
-		process(src, dest, w, h);
-		// process(blurredImage, dest, w, h);
+		// process(src, dest, w, h);
+		process(blurredImage, dest, w, h);
 	}
 
 	public void process(Image src, Image dest, int width, int height) {
@@ -89,7 +89,7 @@ public class BlobTrackingChallenge {
 			}
 		}
 
-		int hueThreshold = 10;
+		int hueThreshold = 15;
 		int skipThreshold = 1;
 		int sizeThreshold = 200;
 
