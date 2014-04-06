@@ -22,6 +22,9 @@ add_message_files(FILES
   ResetMsg.msg
   ReverseMsg.msg
   SonarMsg.msg
+  PositionMsg.msg
+  FiducialMsg.msg
+  MapMsg.msg
 )
 
 # Actually generate language-specific message files
