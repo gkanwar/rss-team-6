@@ -7,6 +7,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
+import java.io.PrintWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import org.apache.commons.lang.time.Stopwatch;
 
 /**
  * BlobTracking performs image processing and tracking for the VisualServo
@@ -23,10 +27,17 @@ public class BlobTrackingChallenge {
 	public int height;
 
 	public boolean targetDetected = false;
+    PrintWriter out;
 
 	public BlobTrackingChallenge(int width, int height) {
 		this.width = width;
 		this.height = height;
+		try {
+		    out = new PrintWriter("/home/rss-student/rss-team-6/src/rosjava_pkg/lab4/snapshots/snapshot.txt");
+		}
+		catch (IOException e) {
+		}
+		Stopwatch watch = new Stopwatch();
 	}
 
 	/**
@@ -88,6 +99,18 @@ public class BlobTrackingChallenge {
 				hues[y][x] = src.getHue(x, y);
 			}
 		}
+
+	    if (watch.getTime() > 1000*10) {
+		watch.reset();
+		watch.start();
+		for (int x = 0; x < width; x++) {
+		    for (int y = 0; y < width; y++) {
+			out.print(hues[y][x] + " ");
+		    }
+		    out.println();
+		}
+		out.println(); out.println(); out.flush();
+	    }
 
 		int hueThreshold = 15;
 		int skipThreshold = 1;
