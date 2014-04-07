@@ -1,1 +1,1 @@
-float64 m
+byte[] serializedMap

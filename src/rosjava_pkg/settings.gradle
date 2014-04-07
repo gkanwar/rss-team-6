@@ -4,23 +4,12 @@ include 'motion'
 include 'sensing'
 include 'path_planning'
 include 'state_machine'
+include 'localization'
 
 /*
 Uncomment once vision has code
 include 'vision'
 */
-
-
-
-include 'localization'
-include 'path_planning'
-
-/*
-include 'state_machine'
-
-*/
-
-
 
 /*
 include 'rosjava_prj_example'
