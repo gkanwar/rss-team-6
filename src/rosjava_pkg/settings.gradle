@@ -1,4 +1,4 @@
-//include 'lab4'
+/*include 'lab4'*/
 include 'odometry'
 include 'motion'
 include 'sensing'
@@ -12,8 +12,12 @@ include 'vision'
 
 
 
-/*
 include 'localization'
+include 'path_planning'
+
+/*
+include 'state_machine'
+
 */
 
 
