@@ -10,7 +10,7 @@ import java.util.Set;
 import java.io.PrintWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import org.apache.commons.lang.time.Stopwatch;
+import org.apache.commons.lang.time.StopWatch;
 
 /**
  * BlobTracking performs image processing and tracking for the VisualServo
@@ -28,16 +28,20 @@ public class BlobTrackingChallenge {
 
 	public boolean targetDetected = false;
     PrintWriter out;
+    StopWatch watch;
 
 	public BlobTrackingChallenge(int width, int height) {
 		this.width = width;
 		this.height = height;
 		try {
-		    out = new PrintWriter("/home/rss-student/rss-team-6/src/rosjava_pkg/lab4/snapshots/snapshot.txt");
+		    out = new PrintWriter("/home/rss-student/yo.txt");
+		    // out = new PrintWriter("/home/rss-student/rss-challenge/rss-team-6/src/rosjava_pkg/lab4/snapshots/snapshot.txt");
+		    out.println("Started writing file");
+		    out.flush();
 		}
 		catch (IOException e) {
 		}
-		Stopwatch watch = new Stopwatch();
+		watch = new StopWatch();
 	}
 
 	/**
