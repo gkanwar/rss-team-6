@@ -9,7 +9,7 @@ import java.awt.Color;
  * @author Vinayak Ranade
  * 
  */
-public class Image {
+public class Image implements java.io.Serializable {
 	/**
 	 * Represents a color channel, for use with packed ARGB pixels and byte
 	 * arrays.

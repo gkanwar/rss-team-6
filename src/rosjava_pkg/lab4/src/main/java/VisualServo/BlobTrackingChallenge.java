@@ -7,10 +7,12 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.lang3.time.StopWatch;
 
 /**
  * BlobTracking performs image processing and tracking for the VisualServo
@@ -29,19 +31,25 @@ public class BlobTrackingChallenge {
 	public boolean targetDetected = false;
     PrintWriter out;
     StopWatch watch;
+    FileOutputStream fileOut;
+    ObjectOutputStream outStream;
+    Set<Image> capturedImages;
 
-	public BlobTrackingChallenge(int width, int height) {
+	public BlobTrackingChallenge(int width, int height, boolean serialize) {
 		this.width = width;
 		this.height = height;
-		try {
-		    out = new PrintWriter("/home/rss-student/yo.txt");
-		    // out = new PrintWriter("/home/rss-student/rss-challenge/rss-team-6/src/rosjava_pkg/lab4/snapshots/snapshot.txt");
-		    out.println("Started writing file");
-		    out.flush();
+		if (serialize) {
+			try {
+			    out = new PrintWriter("/home/rss-student/imageObjects.txt");
+			    // out = new PrintWriter("/home/rss-student/rss-challenge/rss-team-6/src/rosjava_pkg/lab4/snapshots/snapshot.txt");
+			    fileOut = new FileOutputStream("/home/rss-student/imageObjects.ser");
+			    outStream = new ObjectOutputStream(fileOut);
+			}
+			catch (IOException e) {
+			}
+			watch = new StopWatch();
 		}
-		catch (IOException e) {
-		}
-		watch = new StopWatch();
+		capturedImages = new HashSet<Image>();
 	}
 
 	/**
@@ -105,15 +113,16 @@ public class BlobTrackingChallenge {
 		}
 
 	    if (watch.getTime() > 1000*10) {
-		watch.reset();
-		watch.start();
-		for (int x = 0; x < width; x++) {
-		    for (int y = 0; y < width; y++) {
-			out.print(hues[y][x] + " ");
-		    }
-		    out.println();
-		}
-		out.println(); out.println(); out.flush();
+			watch.reset();
+			watch.start();
+			for (int x = 0; x < width; x++) {
+			    for (int y = 0; y < width; y++) {
+				out.print(hues[y][x] + " ");
+			    }
+			    out.println();
+			}
+			out.println(); out.println(); out.flush();
+			capturedImages.add(src);
 	    }
 
 		int hueThreshold = 15;
@@ -211,4 +220,15 @@ public class BlobTrackingChallenge {
 		}
 		return blob;
 	}
+	
+	public void closeSerialization() {
+		try {
+			outStream.writeObject(capturedImages);
+			outStream.close();
+		    fileOut.close();
+		}
+		catch (IOException e) {
+		}
+	}
 }
+

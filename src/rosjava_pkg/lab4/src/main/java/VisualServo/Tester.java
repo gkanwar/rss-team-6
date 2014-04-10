@@ -1,16 +1,24 @@
 package VisualServo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Tester {
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		byte[] src = generateImage();
+	public static void main(String[] args) {		
+		Image image = new Image(generateImage(), 50, 50);
+		List<Image> list = new ArrayList<Image>();
+		list.add(image);
+		ImageGUI gui = new ImageGUI(list);
+		
+		/*byte[] src = generateImage();
 		Image image = new Image(src, 50, 50);	
 		Image dest = new Image(50, 50);
 		BlobTrackingChallenge tracker = new BlobTrackingChallenge(50, 50);
-		tracker.process(image,  dest, 50, 50);
+		tracker.process(image,  dest, 50, 50);*/
 	}
 	
 	public static byte[] generateImage() {
