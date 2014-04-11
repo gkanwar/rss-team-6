@@ -131,7 +131,7 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
      */
     @Override
     public void onStart(final ConnectedNode node) {
-        blobTrack = new BlobTrackingChallenge(width, height);
+        blobTrack = new BlobTrackingChallenge(width, height, true);
 
         // Begin Student Code
 
