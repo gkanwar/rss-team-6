@@ -43,14 +43,14 @@ public class BlobTrackingChallenge {
 		this.serialize = serialize;
 		if (serialize) {
 			try {
-			    out = new PrintWriter("/home/rss-student/imageObjects.txt");
-			    // out = new PrintWriter("/home/rss-student/rss-challenge/rss-team-6/src/rosjava_pkg/lab4/snapshots/snapshot.txt");
-			    fileOut = new FileOutputStream("/home/rss-student/imageObjects.ser");
+			    out = new PrintWriter("/home/rss-student/rss-challenge/rss-team-6/src/rosjava_pkg/lab4/snapshots/imageObjects.txt");
+			    fileOut = new FileOutputStream("/home/rss-student/rss-challenge/rss-team-6/src/rosjava_pkg/lab4/snapshots/imageObjects.ser");
 			    outStream = new ObjectOutputStream(fileOut);
 			}
 			catch (IOException e) {
 			}
 			watch = new StopWatch();
+			watch.start();
 		}
 		capturedImages = new ArrayList<Image>();
 	}
@@ -119,7 +119,7 @@ public class BlobTrackingChallenge {
 			watch.reset();
 			watch.start();
 			for (int x = 0; x < width; x++) {
-			    for (int y = 0; y < width; y++) {
+			    for (int y = 0; y < height; y++) {
 				out.print(hues[y][x] + " ");
 			    }
 			    out.println();
