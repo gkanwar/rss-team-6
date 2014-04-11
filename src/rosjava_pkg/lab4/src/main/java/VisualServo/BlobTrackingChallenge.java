@@ -115,7 +115,7 @@ public class BlobTrackingChallenge {
 			}
 		}
 
-	    if (serialize && watch.getTime() > 1000*10) {
+	    if (serialize && watch.getTime() > 1000*3) {
 			watch.reset();
 			watch.start();
 			for (int x = 0; x < width; x++) {
@@ -126,6 +126,9 @@ public class BlobTrackingChallenge {
 			}
 			out.println(); out.println(); out.flush();
 			capturedImages.add(src);
+			if (capturedImages.size() == 10) {
+				closeSerialization();
+			}
 	    }
 
 		int hueThreshold = 15;
@@ -135,14 +138,14 @@ public class BlobTrackingChallenge {
 		Set<Blob> discoveredBlobs = findBlobs(hues, hueThreshold,
 				skipThreshold, sizeThreshold);
 		
-		System.out.println("Found " + discoveredBlobs.size() + " blobs");
+		//System.out.println("Found " + discoveredBlobs.size() + " blobs");
 		int grayscale = 0;
 		
 		for (Blob blob : discoveredBlobs) {
 			Set<Point2D.Double> blobPoints = blob.getPoints();
-			System.out.println("\tBlob of size " + blobPoints.size());
+			//System.out.println("\tBlob of size " + blobPoints.size());
 			if (true || blobPoints.size() > 200 && blobPoints.size() < 3000) {
-				System.out.println("grayscale: " + grayscale);
+				//System.out.println("grayscale: " + grayscale);
 				for (Point2D.Double point : blobPoints) {
 					dest.setPixel((int) point.x, (int) point.y, (byte) grayscale,
 							(byte) grayscale, (byte) grayscale);
@@ -232,6 +235,8 @@ public class BlobTrackingChallenge {
 			outStream.writeObject(capturedImages);
 			outStream.close();
 		    fileOut.close();
+		    serialize = false;
+		    System.out.println("SERIALIZATION STREAM ENDED");
 		}
 		catch (IOException e) {
 		}
