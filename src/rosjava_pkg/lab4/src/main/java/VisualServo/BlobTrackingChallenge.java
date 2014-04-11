@@ -103,37 +103,51 @@ public class BlobTrackingChallenge {
 
 		// Use either original or blurred image for processing
 		// process(src, dest, w, h);
-		process(blurredImage, dest, w, h);
+		process(src, blurredImage, dest, w, h);
 	}
 
-	public void process(Image src, Image dest, int width, int height) {
+	public void process(Image original, Image blurred, Image dest, int width, int height) {
+		//Image src = blurred;
 
-		int[][] hues = new int[height][width];
+		int[][] hues_original = new int[height][width];
+		int[][] hues_blurred = new int[height][width];
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				hues[y][x] = src.getHue(x, y);
+				hues_original[y][x] = original.getHue(x, y);
+				hues_blurred[y][x] = blurred.getHue(x,y);
 			}
 		}
 
 	    if (serialize && watch.getTime() > 1000*3) {
 			watch.reset();
 			watch.start();
-			for (int x = 0; x < width; x++) {
-			    for (int y = 0; y < height; y++) {
-				out.print(hues[y][x] + " ");
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					out.print(hues_original[y][x] + " ");
 			    }
 			    out.println();
 			}
 			out.println(); out.println(); out.flush();
-			capturedImages.add(src);
-			if (capturedImages.size() == 10) {
+			for (int y=0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					out.print(hues_blurred[y][x] + " ");
+				}
+				out.println();
+			}
+			out.println(); out.println(); out.flush();
+			
+			capturedImages.add(original);
+			capturedImages.add(blurred);
+			if (capturedImages.size() == 20) {
 				closeSerialization();
 			}
 	    }
 
-		int hueThreshold = 15;
+		int hueThreshold = 1;
 		int skipThreshold = 1;
 		int sizeThreshold = 200;
+		
+		int[][] hues = hues_blurred;
 
 		Set<Blob> discoveredBlobs = findBlobs(hues, hueThreshold,
 				skipThreshold, sizeThreshold);
