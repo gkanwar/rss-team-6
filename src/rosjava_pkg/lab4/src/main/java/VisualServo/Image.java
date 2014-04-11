@@ -178,11 +178,19 @@ public class Image implements java.io.Serializable {
 				+ Channel.GREEN.offset], pixels[index + Channel.BLUE.offset]);
 	}
 
-	public static int byteToUnsigned(byte input) {
-		if (input >= 0)
-			return input;
-		else
-			return (input + 256);
+	public static boolean hueWithinRange(int hue, int low, int high) {
+		if (low <= high) {
+			return (hue >= low && hue <= high);
+		}
+		else {
+			return (hue >= low || hue <= high);
+		}
+	}
+	
+	public static boolean hueWithinThreshold(int hue1, int hue2, int threshold) {
+		return (Math.abs(hue1 - hue2) <= threshold || 
+				Math.abs(hue1 - hue2 - 256) <= threshold ||
+				Math.abs(hue2 - hue1 - 256) <= threshold);
 	}
 
 	/**

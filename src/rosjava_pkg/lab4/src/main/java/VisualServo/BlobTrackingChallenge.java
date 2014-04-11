@@ -23,12 +23,13 @@ import org.apache.commons.lang.time.StopWatch;
  * @author previous TA's, prentice
  */
 public class BlobTrackingChallenge {
-	protected int stepCounter = 0;
-	protected double lastStepTime = 0.0;
-
-	public int width;
-	public int height;
-	public boolean serialize;
+	private int width;
+	private int height;
+	private boolean serialize;
+	private boolean useBlurred;
+	private int hueThreshold;
+	private int skipThreshold;
+	private int sizeThreshold;
 
 	public boolean targetDetected = false;
     PrintWriter out;
@@ -36,11 +37,20 @@ public class BlobTrackingChallenge {
     FileOutputStream fileOut;
     ObjectOutputStream outStream;
     List<Image> capturedImages;
+    Image currentImage;
+    Image destinationImage;
+    int[][] currentHues;
 
-	public BlobTrackingChallenge(int width, int height, boolean serialize) {
+	public BlobTrackingChallenge(int width, int height, boolean serialize, boolean useBlurred, int hueThreshold, int skipThreshold, int sizeThreshold) {
 		this.width = width;
 		this.height = height;
 		this.serialize = serialize;
+		this.useBlurred = useBlurred;
+		this.hueThreshold = hueThreshold;
+		this.skipThreshold = skipThreshold;
+		this.sizeThreshold = sizeThreshold;
+		currentHues = new int[height][width];
+		
 		if (serialize) {
 			try {
 			    out = new PrintWriter("/home/rss-student/rss-challenge/rss-team-6/src/rosjava_pkg/lab4/snapshots/imageObjects.txt");
@@ -55,107 +65,33 @@ public class BlobTrackingChallenge {
 		capturedImages = new ArrayList<Image>();
 	}
 
-	/**
-	 * <p>
-	 * Computes frame rate of vision processing
-	 * </p>
-	 */
-	private void stepTiming() {
-		double currTime = System.currentTimeMillis();
-		stepCounter++;
-		// if it's been a second, compute frames-per-second
-		if (currTime - lastStepTime > 1000.0) {
-			// double fps = (double) stepCounter * 1000.0
-			// / (currTime - lastStepTime);
-			// System.err.println("FPS: " + fps);
-			stepCounter = 0;
-			lastStepTime = currTime;
-		}
-	}
-
 	public void apply(Image src, Image dest) {
-		// stepTiming(); // monitors the frame rate
-
-		int h = src.getHeight();
-		int w = src.getWidth();
-		int ht = h / 10;
-		int wt = w / 10;
-		int ht_start = 0;
-		int wt_start = 0;
-
-		double hueSum = 0;
-
-		// Determine the average rgb/hsb pixel values in the upper left hand
-		// corner
-		for (int x = wt_start; x < wt_start + wt; x++) {
-			for (int y = ht_start; y < ht_start + ht; y++) {
-				hueSum += src.getHue(x, y);
-			}
+		currentImage = src;
+		destinationImage = dest; 
+		
+		// Change current image to blurred image if boolean activated
+		if (useBlurred) {
+			byte[] blurredPixels = new byte[width * height * 3];
+			GaussianBlur.apply(src.toArray(), blurredPixels, width, height);
+			currentImage = new Image(blurredPixels, width, height);
 		}
-
-		int hueApprox = (int) hueSum / (ht * wt);
-		//System.out.println("Upper left hue: " + hueApprox);
-
-		// Create a filtered image by using a Gaussian filter
-		byte[] blurredPixels = new byte[w * h * 3];
-		GaussianBlur.apply(src.toArray(), blurredPixels, w, h);
-		Image blurredImage = new Image(blurredPixels, w, h);
-
-		// Use either original or blurred image for processing
-		// process(src, dest, w, h);
-		process(src, blurredImage, dest, w, h);
-	}
-
-	public void process(Image original, Image blurred, Image dest, int width, int height) {
-		//Image src = blurred;
-
-		int[][] hues_original = new int[height][width];
-		int[][] hues_blurred = new int[height][width];
+		
+		// Compute the hues of the current image (unfiltered and filtered)
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				hues_original[y][x] = original.getHue(x, y);
-				hues_blurred[y][x] = blurred.getHue(x,y);
+				currentHues[y][x] = currentImage.getHue(x, y);
 			}
 		}
 
-	    if (serialize && watch.getTime() > 1000*3) {
-			watch.reset();
-			watch.start();
-			for (int y = 0; y < height; y++) {
-				for (int x = 0; x < width; x++) {
-					out.print(hues_original[y][x] + " ");
-			    }
-			    out.println();
-			}
-			out.println(); out.println(); out.flush();
-			for (int y=0; y < height; y++) {
-				for (int x = 0; x < width; x++) {
-					out.print(hues_blurred[y][x] + " ");
-				}
-				out.println();
-			}
-			out.println(); out.println(); out.flush();
-			
-			capturedImages.add(original);
-			capturedImages.add(blurred);
-			if (capturedImages.size() == 20) {
-				closeSerialization();
-			}
-	    }
-
-		int hueThreshold = 1;
-		int skipThreshold = 1;
-		int sizeThreshold = 200;
+		if(serialize) storeImage();
+		// computeUpperLeftAverage();
 		
-		int[][] hues = hues_blurred;
-
-		Set<Blob> discoveredBlobs = findBlobs(hues, hueThreshold,
-				skipThreshold, sizeThreshold);
+		// Interpret the image
+		Set<Blob> discoveredObjects = processImage();
 		
 		//System.out.println("Found " + discoveredBlobs.size() + " blobs");
 		int grayscale = 0;
-		
-		for (Blob blob : discoveredBlobs) {
+		for (Blob blob : discoveredObjects) {
 			Set<Point2D.Double> blobPoints = blob.getPoints();
 			//System.out.println("\tBlob of size " + blobPoints.size());
 			if (true || blobPoints.size() > 200 && blobPoints.size() < 3000) {
@@ -169,8 +105,53 @@ public class BlobTrackingChallenge {
 		}
 	}
 
-	public Set<Blob> findBlobs(int[][] hues, int hueThreshold,
-			int skipThreshold, int sizeThreshold) {
+	public void computeUpperLeftAverage() {
+		int ht = height / 10;
+		int wt = width / 10;
+		int ht_start = 0;
+		int wt_start = 0;
+
+		double hueSum = 0;
+
+		// Determine the average rgb/hsv pixel values in the upper left hand corner
+		for (int x = wt_start; x < wt_start + wt; x++) {
+			for (int y = ht_start; y < ht_start + ht; y++) {
+				hueSum += currentHues[y][x];
+			}
+		}
+		int hueApprox = (int) hueSum / (ht * wt);
+		System.out.println("Upper left hue: " + hueApprox);
+	}
+	
+	public void storeImage() {
+		if (watch.getTime() > 1000*3) {
+			watch.reset();
+			watch.start();
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					out.print(currentHues[y][x] + " ");
+			    }
+			    out.println();
+			}
+			out.println(); out.println(); out.flush();
+			
+			capturedImages.add(currentImage);
+			if (capturedImages.size() == 20) {
+				closeSerialization();
+			}
+		}
+    }
+	
+	public Set<Blob> processImage() {
+		Set<Blob> hueConstantRegions = findHueConstantRegions();
+		//Set<Blob> objectRegions = findObjectRegions(hueConstantRegions);
+		//classifyObjectRegions(objectRegions);
+		
+		
+		return hueConstantRegions;
+	}
+		
+	public Set<Blob> findHueConstantRegions() {
 		Set<Point2D.Double> examinedPoints = new HashSet<Point2D.Double>();
 		Set<Blob> discoveredBlobs = new HashSet<Blob>();
 
@@ -178,15 +159,9 @@ public class BlobTrackingChallenge {
 			for (int y = 0; y < height; y++) {
 				Point2D.Double startPoint = new Point2D.Double(x, y);
 				if (!examinedPoints.contains(startPoint)) {
-					Set<Point2D.Double> currentBlobPoints = findNewBlob(hues,
-							startPoint, hueThreshold, skipThreshold);
+					Set<Point2D.Double> currentBlobPoints = findNewBlob(startPoint);
 					examinedPoints.addAll(currentBlobPoints);
-					Blob processedBlob = processBlob(hues, currentBlobPoints,
-							sizeThreshold);
-
-					if (processedBlob != null) {
-						discoveredBlobs.add(processedBlob);
-					}
+					discoveredBlobs.add(new Blob(currentBlobPoints));
 				}
 			}
 		}
@@ -194,11 +169,10 @@ public class BlobTrackingChallenge {
 		return discoveredBlobs;
 	}
 
-	public Set<Point2D.Double> findNewBlob(int[][] hues,
-			Point2D.Double startPoint, int hueThreshold, int skipThreshold) {
+	public Set<Point2D.Double> findNewBlob(Point2D.Double startPoint) {
 		// Initialize a set representing the blob and a queue of points to add
 		// to the blob
-		Set<Point2D.Double> currentBlob = new HashSet<Point2D.Double>();
+		Set<Point2D.Double> currentPoints = new HashSet<Point2D.Double>();
 		Queue<Point2D.Double> pointsToTest = new LinkedList<Point2D.Double>();
 		pointsToTest.add(startPoint);
 
@@ -206,8 +180,8 @@ public class BlobTrackingChallenge {
 			// Add the first point in the queue to the blob if it isn't already
 			// present
 			Point2D.Double point = pointsToTest.remove();
-			if (!currentBlob.contains(point)) {
-				currentBlob.add(point);
+			if (!currentPoints.contains(point)) {
+				currentPoints.add(point);
 				
 				// System.out.println("Current blob just added : " + point.x + " " + point.y);
 
@@ -223,8 +197,8 @@ public class BlobTrackingChallenge {
 						// criteria, add it to the queue
 						if ((xPos >= 0 && xPos <= width - 1)
 								&& (yPos >= 0 && yPos <= height - 1)
-								&& (Math.abs(hues[yPos][xPos]
-										- hues[(int)point.y][(int)point.x]) <= hueThreshold)) {
+								&& (Math.abs(currentHues[yPos][xPos]
+										- currentHues[(int)point.y][(int)point.x]) <= hueThreshold)) {
 							pointsToTest.add(new Point2D.Double(xPos, yPos));
 						}
 					}
@@ -232,16 +206,23 @@ public class BlobTrackingChallenge {
 			}
 		}
 
-		return currentBlob;
+		return currentPoints;
 	}
-
-	public Blob processBlob(int[][] hues, Set<Point2D.Double> blobPoints,
-			int sizeThreshold) {
-		Blob blob = null;
-		if (blobPoints.size() > sizeThreshold) {
-			blob = new Blob(blobPoints, hues);
+	
+	public Set<Blob> findObjectRegions(Set<Blob> hueConstantRegions) {
+		Set<Blob> objectBlobs = new HashSet<Blob>();
+		for (Blob blob : hueConstantRegions) {
+			if (blob.getSize() > sizeThreshold && !blob.pointsOnEdge(width, height) && blob.isObject(currentHues)) {
+				objectBlobs.add(blob);
+			}
 		}
-		return blob;
+		return objectBlobs;
+	}
+	
+	public void classifyObjectRegions(Set<Blob> objectBlobs) {
+		for (Blob blob : objectBlobs) {
+			blob.classifyShape();
+		}
 	}
 	
 	public void closeSerialization() {

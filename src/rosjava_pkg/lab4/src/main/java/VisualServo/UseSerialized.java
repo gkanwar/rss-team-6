@@ -39,10 +39,10 @@ public class UseSerialized {
 	private void interpretImages(List<Image> imageSet) {
 		System.out.println("here!");
 		processedImages = new ArrayList<Image>();
-		BlobTrackingChallenge blobTracker = new BlobTrackingChallenge(160, 120, false);
+		BlobTrackingChallenge blobTracker = new BlobTrackingChallenge(160, 120, false, false, 1, 1, 200);
 		for (Image image : imageSet) {
 			Image dest = new Image(image);
-			blobTracker.process(image, image, dest, 160, 120);
+			blobTracker.apply(image, dest);
 			processedImages.add(image);
 			processedImages.add(dest);
 		}
