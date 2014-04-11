@@ -3,6 +3,7 @@ package VisualServo;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -27,17 +28,19 @@ public class BlobTrackingChallenge {
 
 	public int width;
 	public int height;
+	public boolean serialize;
 
 	public boolean targetDetected = false;
     PrintWriter out;
     StopWatch watch;
     FileOutputStream fileOut;
     ObjectOutputStream outStream;
-    Set<Image> capturedImages;
+    List<Image> capturedImages;
 
 	public BlobTrackingChallenge(int width, int height, boolean serialize) {
 		this.width = width;
 		this.height = height;
+		this.serialize = serialize;
 		if (serialize) {
 			try {
 			    out = new PrintWriter("/home/rss-student/imageObjects.txt");
@@ -49,7 +52,7 @@ public class BlobTrackingChallenge {
 			}
 			watch = new StopWatch();
 		}
-		capturedImages = new HashSet<Image>();
+		capturedImages = new ArrayList<Image>();
 	}
 
 	/**
@@ -112,7 +115,7 @@ public class BlobTrackingChallenge {
 			}
 		}
 
-	    if (watch.getTime() > 1000*10) {
+	    if (serialize && watch.getTime() > 1000*10) {
 			watch.reset();
 			watch.start();
 			for (int x = 0; x < width; x++) {
@@ -133,15 +136,18 @@ public class BlobTrackingChallenge {
 				skipThreshold, sizeThreshold);
 		
 		System.out.println("Found " + discoveredBlobs.size() + " blobs");
-
+		int grayscale = 0;
+		
 		for (Blob blob : discoveredBlobs) {
 			Set<Point2D.Double> blobPoints = blob.getPoints();
 			System.out.println("\tBlob of size " + blobPoints.size());
-			if (blobPoints.size() > 200 && blobPoints.size() < 3000) {
+			if (true || blobPoints.size() > 200 && blobPoints.size() < 3000) {
+				System.out.println("grayscale: " + grayscale);
 				for (Point2D.Double point : blobPoints) {
-					dest.setPixel((int) point.x, (int) point.y, (byte) 0,
-							(byte) 255, (byte) 0);
+					dest.setPixel((int) point.x, (int) point.y, (byte) grayscale,
+							(byte) grayscale, (byte) grayscale);
 				}
+				grayscale += 50;
 			}
 		}
 	}

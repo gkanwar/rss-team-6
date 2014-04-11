@@ -2,26 +2,17 @@ package VisualServo;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-
-public class UseSerialized extends JPanel {
-
-	/**
-	 * 
-	 */
+public class UseSerialized {
 	private static final long serialVersionUID = 1L;
 	FileInputStream fileIn;
 	ObjectInputStream in;
-	Set<Image> imageSet;
-	protected JFrame frame;
+	List<Image> imageSet;
+	List<Image> processedImages;
 	
 	public static void main(String[] args) {
-		System.out.println("hello!");
-		UseSerialized tester = new UseSerialized("yo.ser");
+		UseSerialized tester = new UseSerialized("C:\\Katharine\\MIT\\Classes\\6.141\\images.ser");
 	}
 		
 	public UseSerialized(String fileName) {
@@ -29,22 +20,27 @@ public class UseSerialized extends JPanel {
 			fileIn = new FileInputStream(fileName);
 			in = new ObjectInputStream(fileIn);
 			try {
-				imageSet = (Set<Image>) in.readObject();
+				imageSet = (List<Image>) in.readObject();
+				interpretImages(imageSet);
+				ImageGUI gui = new ImageGUI(processedImages);
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			in.close();
-			fileIn.close();
-			
+			fileIn.close();			
 		}
 		catch(IOException e) {
 		}
 	}
 
-	private ArrayList<Image> interpretImages(Set<Image> imageSet) {
-		ArrayList<Image> processedImages = new ArrayList<Image>();
-		return processedImages;
+	private void interpretImages(List<Image> imageSet) {
+		processedImages = new ArrayList<Image>();
+		BlobTrackingChallenge blobTracker = new BlobTrackingChallenge(50, 50, false);
+		for (Image image : imageSet) {
+			Image dest = new Image(image);
+			blobTracker.process(image, dest, 50, 50);
+			processedImages.add(dest);
+		}
 	}
 
 }

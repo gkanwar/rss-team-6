@@ -2,23 +2,44 @@ package VisualServo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 
 public class Tester {
 
-	/**
-	 * @param args
-	 */
+	FileOutputStream fileOut;
+    ObjectOutputStream outStream;
+    
 	public static void main(String[] args) {		
-		Image image = new Image(generateImage(), 50, 50);
+		/*Image image = new Image(generateImage(), 50, 50);
 		List<Image> list = new ArrayList<Image>();
 		list.add(image);
-		ImageGUI gui = new ImageGUI(list);
+		ImageGUI gui = new ImageGUI(list);*/
+		
+		Tester tester = new Tester();
 		
 		/*byte[] src = generateImage();
 		Image image = new Image(src, 50, 50);	
 		Image dest = new Image(50, 50);
 		BlobTrackingChallenge tracker = new BlobTrackingChallenge(50, 50);
 		tracker.process(image,  dest, 50, 50);*/
+	}
+	
+	public Tester() {
+		try {
+		    fileOut = new FileOutputStream("C:\\Katharine\\MIT\\Classes\\6.141\\images.ser");
+		    outStream = new ObjectOutputStream(fileOut);
+		    Image image = new Image(generateImage(), 50, 50);
+		    List<Image> capturedImages = new ArrayList<Image>();
+		    capturedImages.add(image);
+		    outStream.writeObject(capturedImages);
+			outStream.close();
+		    fileOut.close();
+		}
+		catch (IOException e) {
+		}
 	}
 	
 	public static byte[] generateImage() {
