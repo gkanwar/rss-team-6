@@ -136,6 +136,7 @@ public class BlobTrackingChallenge {
 			out.println(); out.println(); out.flush();
 			
 			capturedImages.add(currentImage);
+			System.out.println("Size of captured images: " + capturedImages.size());
 			if (capturedImages.size() == 20) {
 				closeSerialization();
 			}
@@ -213,9 +214,9 @@ public class BlobTrackingChallenge {
 	public Set<Blob> findObjectRegions(Set<Blob> hueConstantRegions) {
 		Set<Blob> objectBlobs = new HashSet<Blob>();
 		for (Blob blob : hueConstantRegions) {
-			System.out.println("size: " + blob.getSize() + " " + (blob.getSize() > sizeThreshold));
-			System.out.println("edge: " + (blob.pointsOnEdge(width, height)));
-			System.out.println("object: " + (blob.isObject(currentHues)));
+			//System.out.println("size: " + blob.getSize() + " " + (blob.getSize() > sizeThreshold));
+			//System.out.println("edge: " + (blob.pointsOnEdge(width, height)));
+			//System.out.println("object: " + (blob.isObject(currentHues)));
 			if (blob.getSize() > sizeThreshold && !blob.pointsOnEdge(width, height) && blob.isObject(currentHues)) {
 				objectBlobs.add(blob);
 			}
