@@ -28,6 +28,7 @@ public class BlobTrackingChallenge {
 	private boolean serialize;
 	private boolean useBlurred;
 	private int hueThreshold;
+	private int satThreshold;
 	private int skipThreshold;
 	private int sizeThreshold;
 
@@ -39,17 +40,18 @@ public class BlobTrackingChallenge {
     List<Image> capturedImages;
     Image currentImage;
     Image destinationImage;
-    int[][] currentHues;
+    int[][][] currentHSV;
 
-	public BlobTrackingChallenge(int width, int height, boolean serialize, boolean useBlurred, int hueThreshold, int skipThreshold, int sizeThreshold) {
+	public BlobTrackingChallenge(int width, int height, boolean serialize, boolean useBlurred, int hueThreshold, int satThreshold, int skipThreshold, int sizeThreshold) {
 		this.width = width;
 		this.height = height;
 		this.serialize = serialize;
 		this.useBlurred = useBlurred;
 		this.hueThreshold = hueThreshold;
+		this.satThreshold = satThreshold;
 		this.skipThreshold = skipThreshold;
 		this.sizeThreshold = sizeThreshold;
-		currentHues = new int[height][width];
+		currentHSV = new int[height][width][3];
 		
 		if (serialize) {
 			try {
@@ -77,14 +79,10 @@ public class BlobTrackingChallenge {
 		}
 		
 		// Compute the hues of the current image (unfiltered and filtered)
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				currentHues[y][x] = currentImage.getHue(x, y);
-			}
-		}
+		currentHSV = currentImage.getHSVArray();
 
 		if(serialize) storeImage();
-		// computeUpperLeftAverage();
+		//computeUpperLeftAverage();
 		
 		// Interpret the image
 		Set<Blob> discoveredObjects = processImage();
@@ -94,7 +92,7 @@ public class BlobTrackingChallenge {
 		for (Blob blob : discoveredObjects) {
 			Set<Point2D.Double> blobPoints = blob.getPoints();
 			//System.out.println("\tBlob of size " + blobPoints.size());
-			if (true || blobPoints.size() > 200 && blobPoints.size() < 3000) {
+			if (blobPoints.size() > 100) {
 				//System.out.println("grayscale: " + grayscale);
 				for (Point2D.Double point : blobPoints) {
 					dest.setPixel((int) point.x, (int) point.y, (byte) grayscale,
@@ -112,15 +110,21 @@ public class BlobTrackingChallenge {
 		int wt_start = 0;
 
 		double hueSum = 0;
+		double satSum = 0;
+		double valSum = 0;
 
 		// Determine the average rgb/hsv pixel values in the upper left hand corner
 		for (int x = wt_start; x < wt_start + wt; x++) {
 			for (int y = ht_start; y < ht_start + ht; y++) {
-				hueSum += currentHues[y][x];
+				hueSum += currentHSV[y][x][0];
+				satSum += currentHSV[y][x][1];
+				valSum += currentHSV[y][x][2];
 			}
 		}
 		int hueApprox = (int) hueSum / (ht * wt);
-		System.out.println("Upper left hue: " + hueApprox);
+		int satApprox = (int) satSum / (ht * wt);
+		int valApprox = (int) valSum / (ht * wt);
+		System.out.println("Upper left:: hue: " + hueApprox + " sat: " + satApprox + " val: " + valApprox);
 	}
 	
 	public void storeImage() {
@@ -129,13 +133,28 @@ public class BlobTrackingChallenge {
 			watch.start();
 			for (int y = 0; y < height; y++) {
 				for (int x = 0; x < width; x++) {
-					out.print(currentHues[y][x] + " ");
+					out.print(currentHSV[y][x][0] + " ");
+			    }
+			    out.println();
+			}
+			out.println(); out.println(); out.flush();
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					out.print(currentHSV[y][x][1] + " ");
+			    }
+			    out.println();
+			}
+			out.println(); out.println(); out.flush();
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					out.print(currentHSV[y][x][2] + " ");
 			    }
 			    out.println();
 			}
 			out.println(); out.println(); out.flush();
 			
 			capturedImages.add(currentImage);
+			System.out.println("Size of captured images: " + capturedImages.size());
 			if (capturedImages.size() == 20) {
 				closeSerialization();
 			}
@@ -148,8 +167,8 @@ public class BlobTrackingChallenge {
 		//classifyObjectRegions(objectRegions);
 		
 		
-		//return hueConstantRegions;
-		return objectRegions;
+		return hueConstantRegions;
+		//return objectRegions;
 	}
 		
 	public Set<Blob> findHueConstantRegions() {
@@ -159,7 +178,7 @@ public class BlobTrackingChallenge {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				Point2D.Double startPoint = new Point2D.Double(x, y);
-				if (!examinedPoints.contains(startPoint)) {
+				if (!examinedPoints.contains(startPoint) && currentHSV[(int)startPoint.y][(int)startPoint.x][1] > satThreshold) {
 					Set<Point2D.Double> currentBlobPoints = findNewBlob(startPoint);
 					examinedPoints.addAll(currentBlobPoints);
 					discoveredBlobs.add(new Blob(currentBlobPoints));
@@ -198,8 +217,9 @@ public class BlobTrackingChallenge {
 						// criteria, add it to the queue
 						if ((xPos >= 0 && xPos <= width - 1)
 								&& (yPos >= 0 && yPos <= height - 1)
-								&& (Image.hueWithinThreshold(currentHues[yPos][xPos], 
-										currentHues[(int)point.y][(int)point.x], hueThreshold))) {
+								&& (Image.hueWithinThreshold(currentHSV[yPos][xPos][0], 
+										currentHSV[(int)point.y][(int)point.x][0], hueThreshold))
+								&& (currentHSV[yPos][xPos][1] > satThreshold)) {
 							pointsToTest.add(new Point2D.Double(xPos, yPos));
 						}
 					}
@@ -213,10 +233,10 @@ public class BlobTrackingChallenge {
 	public Set<Blob> findObjectRegions(Set<Blob> hueConstantRegions) {
 		Set<Blob> objectBlobs = new HashSet<Blob>();
 		for (Blob blob : hueConstantRegions) {
-			System.out.println("size: " + blob.getSize() + " " + (blob.getSize() > sizeThreshold));
-			System.out.println("edge: " + (blob.pointsOnEdge(width, height)));
-			System.out.println("object: " + (blob.isObject(currentHues)));
-			if (blob.getSize() > sizeThreshold && !blob.pointsOnEdge(width, height) && blob.isObject(currentHues)) {
+			//System.out.println("size: " + blob.getSize() + " " + (blob.getSize() > sizeThreshold));
+			//System.out.println("edge: " + (blob.pointsOnEdge(width, height)));
+			//System.out.println("object: " + (blob.isObject(currentHues)));
+			if (blob.getSize() > sizeThreshold && !blob.pointsOnEdge(width, height) && blob.isObject(currentHSV)) {
 				objectBlobs.add(blob);
 			}
 		}

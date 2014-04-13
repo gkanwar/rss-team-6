@@ -1,6 +1,7 @@
 package VisualServo;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 
 /**
  * An Image object is a easy-to-use representation of the pixelated image data
@@ -307,6 +308,23 @@ public class Image implements java.io.Serializable {
 		float[] hsbvals = new float[3];
 		hsbvals = Color.RGBtoHSB(red, green, blue, hsbvals);
 		return (int) (255 * hsbvals[0]);
+	}
+	
+	public int[][][] getHSVArray() {
+		int[][][] hsvArray = new int[height][width][3];
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				int red = getPixelRed(x,y) & 0xff;
+				int green = getPixelGreen(x,y) & 0xff;
+				int blue = getPixelBlue(x,y) & 0xff;
+				float[] hsbvals = new float[3];
+				hsbvals = Color.RGBtoHSB(red, green, blue, hsbvals);
+				hsvArray[y][x][0] = (int) (255*hsbvals[0]);
+				hsvArray[y][x][1] = (int) (255*hsbvals[1]);
+				hsvArray[y][x][2] = (int) (255*hsbvals[2]);
+			}
+		}
+		return hsvArray;
 	}
 
 	/**

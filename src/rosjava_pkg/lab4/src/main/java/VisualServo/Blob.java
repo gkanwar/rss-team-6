@@ -69,10 +69,10 @@ public class Blob {
 		return false;
 	}
 	
-	public boolean isObject(int[][] hues) {
+	public boolean isObject(int[][][] hsv) {
 		int hueSum = 0;
 		for (Point2D.Double point : points) {
-			hueSum += hues[(int)point.y][(int)point.x];
+			hueSum += hsv[(int)point.y][(int)point.x][0];
 		}
 		hueAvg = (int) hueSum / points.size();
 		
