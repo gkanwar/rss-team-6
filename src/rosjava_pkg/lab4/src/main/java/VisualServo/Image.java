@@ -1,6 +1,7 @@
 package VisualServo;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 
 /**
  * An Image object is a easy-to-use representation of the pixelated image data

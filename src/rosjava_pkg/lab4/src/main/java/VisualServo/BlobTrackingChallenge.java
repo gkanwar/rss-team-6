@@ -28,6 +28,7 @@ public class BlobTrackingChallenge {
 	private boolean serialize;
 	private boolean useBlurred;
 	private int hueThreshold;
+	private int satThreshold;
 	private int skipThreshold;
 	private int sizeThreshold;
 
@@ -41,12 +42,13 @@ public class BlobTrackingChallenge {
     Image destinationImage;
     int[][][] currentHSV;
 
-	public BlobTrackingChallenge(int width, int height, boolean serialize, boolean useBlurred, int hueThreshold, int skipThreshold, int sizeThreshold) {
+	public BlobTrackingChallenge(int width, int height, boolean serialize, boolean useBlurred, int hueThreshold, int satThreshold, int skipThreshold, int sizeThreshold) {
 		this.width = width;
 		this.height = height;
 		this.serialize = serialize;
 		this.useBlurred = useBlurred;
 		this.hueThreshold = hueThreshold;
+		this.satThreshold = satThreshold;
 		this.skipThreshold = skipThreshold;
 		this.sizeThreshold = sizeThreshold;
 		currentHSV = new int[height][width][3];
@@ -176,7 +178,7 @@ public class BlobTrackingChallenge {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				Point2D.Double startPoint = new Point2D.Double(x, y);
-				if (!examinedPoints.contains(startPoint)) {
+				if (!examinedPoints.contains(startPoint) && currentHSV[(int)startPoint.y][(int)startPoint.x][1] > satThreshold) {
 					Set<Point2D.Double> currentBlobPoints = findNewBlob(startPoint);
 					examinedPoints.addAll(currentBlobPoints);
 					discoveredBlobs.add(new Blob(currentBlobPoints));
@@ -216,7 +218,8 @@ public class BlobTrackingChallenge {
 						if ((xPos >= 0 && xPos <= width - 1)
 								&& (yPos >= 0 && yPos <= height - 1)
 								&& (Image.hueWithinThreshold(currentHSV[yPos][xPos][0], 
-										currentHSV[(int)point.y][(int)point.x][0], hueThreshold))) {
+										currentHSV[(int)point.y][(int)point.x][0], hueThreshold))
+								&& (currentHSV[yPos][xPos][1] > satThreshold)) {
 							pointsToTest.add(new Point2D.Double(xPos, yPos));
 						}
 					}
