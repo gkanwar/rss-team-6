@@ -5,7 +5,6 @@ import java.util.List;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 
 public class Tester {
 
@@ -19,6 +18,7 @@ public class Tester {
 		ImageGUI gui = new ImageGUI(list);*/
 		
 		Tester tester = new Tester();
+		testImage();
 		
 		/*byte[] src = generateImage();
 		Image image = new Image(src, 50, 50);	
@@ -40,6 +40,16 @@ public class Tester {
 		}
 		catch (IOException e) {
 		}
+	}
+	
+	public static void testImage() {
+		System.out.println("Running testImage");
+		if (!Image.hueWithinRange(20, 10, 30)) System.out.println("Failed 1");
+		if (!Image.hueWithinRange(80,50,2)) System.out.println("Failed 2");
+		if (!Image.hueWithinRange(10,80,20)) System.out.println("Failed 3");
+		if (!Image.hueWithinThreshold(0, 255, 1)) System.out.println("FAiled 4");
+		if (!Image.hueWithinThreshold(34, 35, 1)) System.out.println("FAiled 5");
+		if (Image.hueWithinThreshold(1, 255, 1)) System.out.println("Failed 6");
 	}
 	
 	public static byte[] generateImage() {

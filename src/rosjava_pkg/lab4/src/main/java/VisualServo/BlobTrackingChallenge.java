@@ -90,7 +90,7 @@ public class BlobTrackingChallenge {
 		Set<Blob> discoveredObjects = processImage();
 		
 		//System.out.println("Found " + discoveredBlobs.size() + " blobs");
-		int grayscale = 0;
+		int grayscale = 50;
 		for (Blob blob : discoveredObjects) {
 			Set<Point2D.Double> blobPoints = blob.getPoints();
 			//System.out.println("\tBlob of size " + blobPoints.size());
@@ -144,11 +144,12 @@ public class BlobTrackingChallenge {
 	
 	public Set<Blob> processImage() {
 		Set<Blob> hueConstantRegions = findHueConstantRegions();
-		//Set<Blob> objectRegions = findObjectRegions(hueConstantRegions);
+		Set<Blob> objectRegions = findObjectRegions(hueConstantRegions);
 		//classifyObjectRegions(objectRegions);
 		
 		
-		return hueConstantRegions;
+		//return hueConstantRegions;
+		return objectRegions;
 	}
 		
 	public Set<Blob> findHueConstantRegions() {
@@ -197,8 +198,8 @@ public class BlobTrackingChallenge {
 						// criteria, add it to the queue
 						if ((xPos >= 0 && xPos <= width - 1)
 								&& (yPos >= 0 && yPos <= height - 1)
-								&& (Math.abs(currentHues[yPos][xPos]
-										- currentHues[(int)point.y][(int)point.x]) <= hueThreshold)) {
+								&& (Image.hueWithinThreshold(currentHues[yPos][xPos], 
+										currentHues[(int)point.y][(int)point.x], hueThreshold))) {
 							pointsToTest.add(new Point2D.Double(xPos, yPos));
 						}
 					}
@@ -212,6 +213,9 @@ public class BlobTrackingChallenge {
 	public Set<Blob> findObjectRegions(Set<Blob> hueConstantRegions) {
 		Set<Blob> objectBlobs = new HashSet<Blob>();
 		for (Blob blob : hueConstantRegions) {
+			System.out.println("size: " + blob.getSize() + " " + (blob.getSize() > sizeThreshold));
+			System.out.println("edge: " + (blob.pointsOnEdge(width, height)));
+			System.out.println("object: " + (blob.isObject(currentHues)));
 			if (blob.getSize() > sizeThreshold && !blob.pointsOnEdge(width, height) && blob.isObject(currentHues)) {
 				objectBlobs.add(blob);
 			}

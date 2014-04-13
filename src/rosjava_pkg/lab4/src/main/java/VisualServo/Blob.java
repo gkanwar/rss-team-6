@@ -64,9 +64,9 @@ public class Blob {
 	public boolean pointsOnEdge(int width, int height) {
 		for (Point2D.Double point : points) {
 			if ((int)point.x == 0 || (int)point.x == width-1 || (int)point.y == 0 || (int)point.y == height-1)
-				return false;
+				return true;
 		}
-		return true;
+		return false;
 	}
 	
 	public boolean isObject(int[][] hues) {
