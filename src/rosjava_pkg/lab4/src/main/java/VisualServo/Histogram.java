@@ -158,9 +158,9 @@ public class Histogram {
         if (hsbHistogram) {
             for (int i = 0; i < width; i++) {
                 for (int j = 0; j < height; j++) {
-                    int r = Image.byteToUnsigned(source.getPixelRed(i, j));
-                    int g = Image.byteToUnsigned(source.getPixelGreen(i, j));
-                    int b = Image.byteToUnsigned(source.getPixelBlue(i, j));
+                    int r = source.getPixelRed(i, j) & 0xff;
+                    int g = source.getPixelGreen(i, j) & 0xff;
+                    int b = source.getPixelBlue(i, j) & 0xff;
 
                     float[] hsbvals = new float[3];
                     Color.RGBtoHSB(r, g, b, hsbvals);
@@ -173,9 +173,9 @@ public class Histogram {
         } else {
             for (int i = 0; i < width; i++) {
                 for (int j = 0; j < height; j++) {
-                    int r = Image.byteToUnsigned(source.getPixelRed(i, j));
-                    int g = Image.byteToUnsigned(source.getPixelGreen(i, j));
-                    int b = Image.byteToUnsigned(source.getPixelBlue(i, j));
+                	int r = source.getPixelRed(i, j) & 0xff;
+                    int g = source.getPixelGreen(i, j) & 0xff;
+                    int b = source.getPixelBlue(i, j) & 0xff;
 
                     histogram[(int) (r / scale)][0]++;
                     histogram[(int) (g / scale)][1]++;
