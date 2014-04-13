@@ -15,7 +15,7 @@
  */
 
 try {
-    project.catkin.tree.generateMessageArtifact(project, 'lab6_msgs')
+    project.catkin.tree.generateMessageArtifact(project, 'gui_msgs')
 } catch (NullPointerException e) {
     println("Couldn't find lab6_msgs on the ROS_PACKAGE_PATH")
 }

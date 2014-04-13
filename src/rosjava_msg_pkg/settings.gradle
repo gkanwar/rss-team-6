@@ -1,8 +1,2 @@
 include 'rss_msgs'
-include 'lab5_msgs'
-include 'lab6_msgs'
-
-include 'rosjava_msg_example'
-include 'lab5_msgs'
-include 'lab6_msgs'
-include 'rss_msgs'
+include 'gui_msgs'

@@ -1,10 +1,10 @@
 <package>
-  <name>lab6_msgs</name>
-  <description>lab6_msgs</description>
+  <name>gui_msgs</name>
+  <description>gui_msgs</description>
   <maintainer email="rss-team-6@mit.edu">rss-team-6</maintainer>
   <author email="rss-team-6@mit.edu">rss-team-6</author>
   <license>BSD</license>
-  <url>http://ros.org/wiki/lab6_msgs</url>
+  <url>http://ros.org/wiki/gui_msgs</url>
   <version>0.1.0</version>
 
   <buildtool_depend>catkin</buildtool_depend>
@@ -12,11 +12,11 @@
   <build_depend>rosjava_bootstrap</build_depend>
   <build_depend>rosjava_messages</build_depend>
   <build_depend>message_generation</build_depend>
-  <build_depend>lab5_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
   <run_depend>rosjava_build_tools</run_depend>
   <run_depend>rosjava_bootstrap</run_depend>
   <run_depend>rosjava_messages</run_depend>
   <run_depend>message_runtime</run_depend>
-  <run_depend>lab5_msgs</run_depend>
+  <run_depend>std_msgs</run_depend>
 
 </package>
