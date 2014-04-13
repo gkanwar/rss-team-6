@@ -82,7 +82,7 @@ public class BlobTrackingChallenge {
 		currentHSV = currentImage.getHSVArray();
 
 		if(serialize) storeImage();
-		computeUpperLeftAverage();
+		//computeUpperLeftAverage();
 		
 		// Interpret the image
 		Set<Blob> discoveredObjects = processImage();
