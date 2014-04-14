@@ -2059,7 +2059,7 @@ public class VisionGUI extends JPanel implements NodeMain {
         final boolean reverseRGB = node.getParameterTree().getBoolean(
                 "reverse_rgb", false);
 
-        vidSub = node.newSubscriber("/rss/video", "sensor_msgs/Image");
+        vidSub = node.newSubscriber("/rss/low_video", "sensor_msgs/Image");
         vidSub.addMessageListener(new MessageListener<sensor_msgs.Image>() {
             @Override
             public void onNewMessage(sensor_msgs.Image message) {
