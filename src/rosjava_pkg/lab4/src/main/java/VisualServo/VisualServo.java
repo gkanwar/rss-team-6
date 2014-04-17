@@ -21,7 +21,6 @@ import org.ros.node.topic.Subscriber;
 public class VisualServo extends AbstractNodeMain implements Runnable {
 
     private static final int width = 160;
-
     private static final int height = 120;
 
     /**
@@ -29,15 +28,17 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
      * The blob tracker.
      * </p>
      **/
-    private BlobTrackingChallenge blobTrack = null;
+    private BlobTrackingChallenge blockTracker = null;
+    private BlobTrackingChallenge fiducialTracker = null;
 
     private VisionGUI gui;
-    private ArrayBlockingQueue<byte[]> visionImage = new ArrayBlockingQueue<byte[]>(
-            1);
+    private ArrayBlockingQueue<byte[]> blockQueue = new ArrayBlockingQueue<byte[]>(1);
+    private ArrayBlockingQueue<byte[]> fiducialQueue = new ArrayBlockingQueue<byte[]>(1);
 
     protected boolean firstUpdate = true;
 
-    public Subscriber<sensor_msgs.Image> vidSub;
+    public Subscriber<sensor_msgs.Image> vidSubBlock;
+    public Subscriber<sensor_msgs.Image> vidSubFiducial;
     public Subscriber<rss_msgs.OdometryMsg> odoSub;
 
     private Publisher<rss_msgs.BallLocationMsg> ballLocationPub;
@@ -48,15 +49,9 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
      * </p>
      */
     public VisualServo() {
-
-        setInitialParams();
-
         gui = new VisionGUI();
     }
 
-    protected void setInitialParams() {
-
-    }
 
     /**
      * <p>
@@ -67,30 +62,34 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
      * @param rawImage
      *            a received camera message
      */
-    public void handle(byte[] rawImage) {
-
-        visionImage.offer(rawImage);
+    public void handleBlock(byte[] rawImage) {
+        blockQueue.offer(rawImage);
+    }
+    
+    public void handleFiducial(byte[] rawImage) {
+    	fiducialQueue.offer(rawImage);
     }
 
     @Override
     public void run() {
         while (true) {
-            Image src = null;
+            Image srcBlock = null;
+            Image srcFiducial = null;
             try {
-		//System.out.println("size: " + visionImage.take().length);
-                src = new Image(visionImage.take(), width, height);
+                srcBlock = new Image(blockQueue.take(), width, height);
+                srcFiducial = new Image(fiducialQueue.take(), width, height);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 continue;
             }
 
-            Image dest = new Image(src);
-
-	    //System.out.println("blobtrack apply");
-            blobTrack.apply(src, dest);
+            Image destBlock = new Image(srcBlock);
+            blockTracker.applyBlock(srcBlock, destBlock);
+            Image destFiducial = new Image(srcFiducial);
+            fiducialTracker.applyFiducial(srcFiducial, destFiducial);
 
             // update newly formed vision message
-            gui.setVisionImage(dest.toArray(), width, height);
+            gui.setVisionImage(destBlock.toArray(), width, height);
 
 	    /*	
             // Begin Student Code
@@ -131,7 +130,8 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
      */
     @Override
     public void onStart(final ConnectedNode node) {
-        blobTrack = new BlobTrackingChallenge(width, height, false, false, 2, 90, 1, 200);
+        blockTracker = new BlobTrackingChallenge(width, height, false, false, 2, 90, 1, 200);
+        fiducialTracker = new BlobTrackingChallenge(width, height, false, false, 2, 90, 1, 200);
 
         // Begin Student Code
 
@@ -146,8 +146,8 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
         final boolean reverseRGB = node.getParameterTree().getBoolean(
                 "reverse_rgb", false);
 
-        vidSub = node.newSubscriber("/rss/high_video", "sensor_msgs/Image");
-	        vidSub.addMessageListener(new MessageListener<sensor_msgs.Image>() {
+        vidSubBlock = node.newSubscriber("/rss/high_video", "sensor_msgs/Image");
+		vidSubBlock.addMessageListener(new MessageListener<sensor_msgs.Image>() {
             @Override
             public void onNewMessage(sensor_msgs.Image message) {
                 byte[] rgbData;
@@ -159,24 +159,48 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
                 }
                 assert ((int) message.getWidth() == width);
                 assert ((int) message.getHeight() == height);
-		if ((int) message.getWidth() != width) {
-		    throw new RuntimeException ("Widths don't match: " + message.getWidth() + "," + width);
-		}
-		if ((int) message.getHeight() != height) {
-		    throw new RuntimeException ("Heights don't match: " + message.getHeight() + "," + height);
-		}
-		if (rgbData.length != 3 * width * height) {
-		    /*
-		    throw new RuntimeException ("Extra data received: " + rgbData.length + "," + 3*width*height);
-		    */
-		    // Strip the first n characters to make the length right (yay hacks! P.S. don't let tej see this code)
-		    byte[] rgbDataNew = Arrays.copyOfRange(rgbData, rgbData.length - 3*width*height, rgbData.length);
-		    rgbData = rgbDataNew;
-		}
-		//System.out.println("rgbData length: " + rgbData.length); 
-                handle(rgbData);
+                if ((int) message.getWidth() != width) {
+                	throw new RuntimeException ("Widths don't match: " + message.getWidth() + "," + width);
+                }
+                if ((int) message.getHeight() != height) {
+                	throw new RuntimeException ("Heights don't match: " + message.getHeight() + "," + height);
+                }
+                if (rgbData.length != 3 * width * height) {
+				    // Strip the first n characters to make the length right (yay hacks! P.S. don't let tej see this code)
+				    byte[] rgbDataNew = Arrays.copyOfRange(rgbData, rgbData.length - 3*width*height, rgbData.length);
+				    rgbData = rgbDataNew;
+				}
+                handleBlock(rgbData);
             }
         });
+		
+		vidSubFiducial = node.newSubscriber("/rss/high_video", "sensor_msgs/Image");
+		vidSubFiducial.addMessageListener(new MessageListener<sensor_msgs.Image>() {
+			@Override
+			public void onNewMessage(sensor_msgs.Image message) {
+				byte[] rgbData;
+				if (reverseRGB) {
+					rgbData = Image.RGB2BGR(message.getData().array(), (int) message.getWidth(),
+							(int) message.getHeight());
+				} else {
+					rgbData = message.getData().array();
+				}
+				assert ((int) message.getWidth() == width);
+				assert ((int) message.getHeight() == height);
+				if ((int) message.getWidth() != width) {
+					throw new RuntimeException ("Widths don't match: " + message.getWidth() + "," + width);
+				}
+				if ((int) message.getHeight() != height) {
+					throw new RuntimeException ("Heights don't match: " + message.getHeight() + "," + height);
+				}
+				if (rgbData.length != 3 * width * height) {
+					// Strip the first n characters to make the length right (yay hacks! P.S. don't let tej see this code)
+					byte[] rgbDataNew = Arrays.copyOfRange(rgbData, rgbData.length - 3*width*height, rgbData.length);
+					rgbData = rgbDataNew;
+				}
+				handleFiducial(rgbData);
+			}
+		});
 	
         odoSub = node.newSubscriber("/rss/odometry", "rss_msgs/OdometryMsg");
         odoSub.addMessageListener(new MessageListener<rss_msgs.OdometryMsg>() {

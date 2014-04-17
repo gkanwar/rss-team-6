@@ -6,6 +6,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class Blob {
+	private final double circleThreshold = 0.3;
+	private final double verticalAlignThreshold = 0.2;
+	private final double horizontalAlignThreshold = 0.3;
+	
 	private Set<Point2D.Double> points;
 	private Set<Point2D.Double> hullPoints;
 	Map<Integer, Integer> minYforGivenX;
@@ -18,12 +22,12 @@ public class Blob {
 	private boolean isObject;
 	
 	
-	private double centroidX;
-	private double centroidY;
-	private double width;
-	private double height;
+	public double centroidX;
+	public double centroidY;
+	public double width;
+	public double height;
+	
 	private double hue;
-	private boolean isSphere;
 	private double range;
 	private double bearing;
 	
@@ -88,9 +92,22 @@ public class Blob {
 		return false;
 	}
 	
-	public void classifyShape() {
+	public boolean isCircle() {
 		findConvexHull();
-		// need to compute centroid based on convex hull maps next and then compute standard deviation to classify
+		Point2D.Double centroid = new Point2D.Double(centroidX, centroidY);
+		double sumDist = 0.0;
+		for (Point2D.Double point : hullPoints) {
+			sumDist += point.distance(centroid);
+		}
+		double avgDist = sumDist/hullPoints.size();
+		
+		double sumError = 0.0;
+		for (Point2D.Double point : hullPoints) {
+			sumError += Math.pow(point.distance(centroid) - avgDist, 2);
+		}
+		double stdDev = sumError/hullPoints.size();
+		
+		return (stdDev <= circleThreshold*avgDist);
 	}
 	
 	private void findConvexHull() {
@@ -147,6 +164,17 @@ public class Blob {
 		calculateBearing();
 		calculateShape();
 	}
+	
+	public boolean formsFiducial(Blob second, int imgWidth, int imgHeight) {
+		return (this.isValidHorizontalFiducial(imgHeight) && second.isValidHorizontalFiducial(imgHeight) &&
+			(Math.abs(this.width - second.width) <= verticalAlignThreshold*this.width) &&
+			(Math.abs(this.centroidX - second.centroidX) <= verticalAlignThreshold*imgWidth));
+	}
+	
+	public boolean isValidHorizontalFiducial(int imgHeight) {
+		return ((Math.abs(this.centroidY + this.height/2 - imgHeight/2) <= horizontalAlignThreshold*imgHeight) ||
+				(Math.abs(this.centroidY - this.height/2 - imgHeight/2) <= horizontalAlignThreshold*imgHeight));
+	}
 
 	private void calculateRange() {
 
@@ -174,9 +202,5 @@ public class Blob {
 
 	public String getColor() {
 		return color;
-	}
-
-	public boolean getIsSphere() {
-		return isSphere;
 	}
 }

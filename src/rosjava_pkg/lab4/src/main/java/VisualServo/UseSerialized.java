@@ -44,7 +44,7 @@ public class UseSerialized {
 		BlobTrackingChallenge blobTracker = new BlobTrackingChallenge(160, 120, false, false, 2, 90, 1, 200);
 		for (Image image : imageSet) {
 			Image dest = new Image(image);
-			blobTracker.apply(image, dest);
+			blobTracker.applyBlock(image, dest);
 			processedImages.add(image);
 			processedImages.add(dest);
 		}

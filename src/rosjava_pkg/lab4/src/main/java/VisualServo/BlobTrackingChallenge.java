@@ -67,7 +67,7 @@ public class BlobTrackingChallenge {
 		capturedImages = new ArrayList<Image>();
 	}
 
-	public void apply(Image src, Image dest) {
+	public void applyBlock(Image src, Image dest) {
 		currentImage = src;
 		destinationImage = dest; 
 		
@@ -85,7 +85,8 @@ public class BlobTrackingChallenge {
 		//computeUpperLeftAverage();
 		
 		// Interpret the image
-		Set<Blob> discoveredObjects = processImage();
+		Set<Blob> hueConstantRegions = findHueConstantRegions();
+		Set<Blob> discoveredObjects = findObjectRegions(hueConstantRegions);
 		
 		//System.out.println("Found " + discoveredBlobs.size() + " blobs");
 		int grayscale = 50;
@@ -99,6 +100,45 @@ public class BlobTrackingChallenge {
 							(byte) grayscale, (byte) grayscale);
 				}
 				grayscale += 50;
+			}
+		}
+	}
+	
+	public void applyFiducial(Image src, Image dest) {
+		currentImage = src;
+		destinationImage = dest; 
+		
+		// Change current image to blurred image if boolean activated
+		if (useBlurred) {
+			byte[] blurredPixels = new byte[width * height * 3];
+			GaussianBlur.apply(src.toArray(), blurredPixels, width, height);
+			currentImage = new Image(blurredPixels, width, height);
+		}
+		
+		// Compute the hues of the current image (unfiltered and filtered)
+		currentHSV = currentImage.getHSVArray();
+
+		if(serialize) storeImage();
+		//computeUpperLeftAverage();
+		
+		// Interpret the image
+		Set<Blob> hueConstantRegions = findHueConstantRegions();
+		Set<Blob> discoveredObjects = findObjectRegions(hueConstantRegions);
+		List<Blob> discoveredSpheres = findSpheres(discoveredObjects);
+		int grayscale = 50;
+		for (int i=0; i<discoveredSpheres.size(); i++) {
+			for (int j=i+1; j<discoveredSpheres.size(); j++) {
+				if (discoveredSpheres.get(i).formsFiducial(discoveredSpheres.get(j), width, height)) {
+					// send message
+					Set<Point2D.Double> blobPoints1 = discoveredSpheres.get(i).getPoints();
+					Set<Point2D.Double> blobPoints2 = discoveredSpheres.get(j).getPoints();
+					blobPoints1.addAll(blobPoints2);
+					for (Point2D.Double point : blobPoints1) {
+						dest.setPixel((int) point.x, (int) point.y, (byte) grayscale,
+								(byte) grayscale, (byte) grayscale);
+					}
+					grayscale += 50;
+				}
 			}
 		}
 	}
@@ -160,16 +200,6 @@ public class BlobTrackingChallenge {
 			}
 		}
     }
-	
-	public Set<Blob> processImage() {
-		Set<Blob> hueConstantRegions = findHueConstantRegions();
-		Set<Blob> objectRegions = findObjectRegions(hueConstantRegions);
-		//classifyObjectRegions(objectRegions);
-		
-		
-		return hueConstantRegions;
-		//return objectRegions;
-	}
 		
 	public Set<Blob> findHueConstantRegions() {
 		Set<Point2D.Double> examinedPoints = new HashSet<Point2D.Double>();
@@ -238,15 +268,20 @@ public class BlobTrackingChallenge {
 			//System.out.println("object: " + (blob.isObject(currentHues)));
 			if (blob.getSize() > sizeThreshold && !blob.pointsOnEdge(width, height) && blob.isObject(currentHSV)) {
 				objectBlobs.add(blob);
+				blob.calculateBasics();
 			}
 		}
 		return objectBlobs;
 	}
 	
-	public void classifyObjectRegions(Set<Blob> objectBlobs) {
+	public List<Blob> findSpheres(Set<Blob> objectBlobs) {
+		List<Blob> sphereBlobs = new ArrayList<Blob>();
 		for (Blob blob : objectBlobs) {
-			blob.classifyShape();
+			if (blob.isCircle()) {
+				sphereBlobs.add(blob);
+			}
 		}
+		return sphereBlobs;
 	}
 	
 	public void closeSerialization() {
