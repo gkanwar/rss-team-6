@@ -50,49 +50,11 @@ import org.ros.node.topic.Subscriber;
 
 public class VisionGUI extends JPanel implements NodeMain {
 
-        //Publisher<MotionMsg> publisher;
-
-    /**
-     * <p>
-     * Node for ROS communication
-     * </p>
-     */
     public Node node;
-
-    /**
-     * <p>
-     * The application name.
-     * </p>
-     **/
     public static final String APPNAME = "VisionGUI";
-
-    /**
-     * <p>
-     * Needed as JPanel is serializable
-     * </p>
-     **/
     static final long serialVersionUID = 42;
-
-    /**
-     * <p>
-     * Default width.
-     * </p>
-     **/
-    public static final int DEFAULT_WIDTH = 800;
-
-    /**
-     * <p>
-     * Default canvas height.
-     * </p>
-     **/
-    public static final int DEFAULT_HEIGHT = DEFAULT_WIDTH;
-
-    /**
-     * <p>
-     * Whether to render double-buffered.
-     * </p>
-     **/
-    public static final boolean DOUBLE_BUFFERED = true;
+    public static final int DEFAULT_WIDTH = 400;
+    public static final int DEFAULT_HEIGHT = 200;
 
     /**
      * <p>
@@ -130,37 +92,13 @@ public class VisionGUI extends JPanel implements NodeMain {
      **/
     public static final boolean STROKE_NORMALIZATION = true;
 
-
-
     protected boolean firstUpdate = true;
-
-    /**
-     * <p>
-     * Whether to sacrifice rendering quality for speed.
-     * </p>
-     **/
     protected boolean renderFastest = false;
-
-
-    /**
-     * <p>
-     * Whether to paint the vision image.
-     * </p>
-     **/
     protected boolean visionImageEnabled = true;
 
-    /**
-     * <p>
-     * The frame containing this GUI.
-     * </p>
-     **/
     protected JFrame frame;
 
-    /**
-     * <p>
-     * Total time it took in milliseconds to render the last frame.
-     * </p>
-     **/
+    // Total time it took in milliseconds to render the last frame.
     protected double lastFrameTime = 0.0;
 
     /**
@@ -181,87 +119,32 @@ public class VisionGUI extends JPanel implements NodeMain {
     public Subscriber<sensor_msgs.Image> vidSub;
 
     /**
-     * <p>
      * A paintable graphical object.
-     * </p>
      **/
     protected abstract class Glyph {
-
-        /**
-         * <p>
-         * Paint this glyph.
-         * </p>
-         * 
-         * @param g2d
-         *            the graphics context
-         **/
         public abstract void paint(Graphics2D g2d);
     }
 
-
     /**
-     * <p>
      * Displays images from the robot's camera.
-     * </p>
      **/
     protected class VisionImage extends Glyph {
-
-        /**
-         * <p>
-         * The pixel buffer for the displayed image.
-         * </p>
-         **/
+        // The pixel buffer for the displayed image.
         int packedImage[] = null;
 
-        /**
-         * <p>
-         * Java image animation machinery.
-         * </p>
-         **/
+        // Java image animation machinery
         MemoryImageSource source = null;
 
-        /**
-         * <p>
-         * The actual image we paint, null if none.
-         * </p>
-         **/
+        //The actual image we paint, null if none
         java.awt.Image image = null;
 
-        /**
-         * <p>
-         * Currently displayed image width or -1 if none.
-         * </p>
-         **/
         int width = -1;
-
-        /**
-         * <p>
-         * Currently displayed image height or -1 if none.
-         * </p>
-         **/
         int height = -1;
 
-        /**
-         * <p>
-         * Create a new vision image, initially not displaying anything.
-         * </p>
-         **/
         VisionImage() {
             unset();
         }
 
-        /**
-         * <p>
-         * Set to display an image.
-         * </p>
-         * 
-         * @param unpackedImage
-         *            the unpacked RGB image (a copy is made)
-         * @param width
-         *            image width
-         * @param height
-         *            image height
-         **/
         void set(byte[] unpackedImage, int width, int height) {
             if ((unpackedImage == null) || (width <= 0) || (height <= 0)) {
                 unset();
@@ -305,29 +188,12 @@ public class VisionGUI extends JPanel implements NodeMain {
             this.height = height;
         }
 
-        /**
-         * <p>
-         * Disable display.
-         * </p>
-         **/
         void unset() {
             image = null;
             width = -1;
             height = -1;
         }
 
-        /**
-         * <p>
-         * Paints the image, if any.
-         * </p>
-         * 
-         * <p>
-         * Assumes g2d is in view coordinates.
-         * </p>
-         * 
-         * @param g2d
-         *            the graphics context
-         **/
         @Override
         public void paint(Graphics2D g2d) {
             if (image == null)
@@ -342,29 +208,11 @@ public class VisionGUI extends JPanel implements NodeMain {
      * The one {@link VisionGUI.VisionImage}.
      * </p>
      **/
-    protected VisionImage visionImage = new VisionImage();
-
+    protected VisionImage visionImageBlock = new VisionImage();
+    protected VisionImage visionImageFiducial = new VisionImage();
 
     /**
-     * <p>
-     * Consruct a new VisionGUI.
-     * </p>
-     * 
-     * <p>
-     * The new viewer will automatically appear in a new window.
-     * </p>
-     * 
-     * @param poseSaveInterval
-     *            the number of robot pose updates to skip between saving a
-     *            persistent snapshot of the pose. Zero indicates that every
-     *            pose should be saved. Negative indicates that <i>no</i> poses
-     *            should be saved.
-     * @param maxTV
-     *            max translation velocity in m/s. Setting this less than or
-     *            equal to 0.0 disables driving. See also {@link #setMaxTV}.
-     * @param maxRV
-     *            max translation velocity in m/s. Setting this less than or
-     *            equal to 0.0 disables driving. See also {@link #setMaxRV}.
+     * Construct a new VisionGUI.
      **/
     public VisionGUI() {
 
@@ -422,73 +270,43 @@ public class VisionGUI extends JPanel implements NodeMain {
         return APPNAME;
     }
 
-    /**
-     * <p>
-     * Set the vision image for display.
-     * </p>
-     * 
-     * <p>
-     * Note: if you are running the GUI in stand-alone mode, this will be
-     * automatically called when Carmen vision image messages are recieved.
-     * </p>
-     * 
-     * @param image
-     *            is an unpacked <code>width</code> by <code>height</code> RGB
-     *            image
-     * @param width
-     *            the image width
-     * @param height
-     *            the image height
-     **/
-    public void setVisionImage(byte[] image, int width, int height) {
-        synchronized (visionImage) {
-            visionImage.set(image, width, height);
+    public void setVisionImageBlock(byte[] image, int width, int height) {
+        synchronized(visionImageBlock) {
+            visionImageBlock.set(image, width, height);
         }
         repaint();
     }
-
-    /**
-     * <p>
-     * Erase the vision image, if any.
-     * </p>
-     **/
-    public void eraseVisionImage() {
-        synchronized (visionImage) {
-            visionImage.unset();
+    
+    public void setVisionImageFiducial(byte[] image, int width, int height) {
+    	synchronized(visionImageFiducial) {
+    		visionImageFiducial.set(image, width, height);
+    	}
+    	repaint();
+    }
+    
+    public void eraseVisionImageBlock() {
+        synchronized(visionImageBlock) {
+            visionImageBlock.unset();
         }
     }
+    
+    public void eraseVisionImageFiducial() {
+    	synchronized (visionImageFiducial) {
+    		visionImageFiducial.unset();
+    	}
+    }
 
-    /**
-     * <p>
-     * Calls {@link #paintComponent(Graphics2D)}.
-     * </p>
-     * 
-     * @param g
-     *            the paint context
-     **/
     @Override
     public void paintComponent(Graphics g) {
         paintComponent((Graphics2D) g);
     }
 
-    /**
-     * <p>
-     * Calls superclass impl, then {@link #paintContents}.
-     * </p>
-     **/
+
     protected void paintComponent(Graphics2D g2d) {
         super.paintComponent(g2d);
         paintContents(g2d);
     }
 
-    /**
-     * <p>
-     * Paint all the graphics.
-     * </p>
-     * 
-     * @param g2d
-     *            the paint context
-     **/
     protected void paintContents(Graphics2D g2d) {
         double startTime = System.currentTimeMillis();
 
@@ -499,7 +317,6 @@ public class VisionGUI extends JPanel implements NodeMain {
             renderFastest = false;
 
         if (renderFastest) {
-
             g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
                     RenderingHints.VALUE_RENDER_SPEED);
 
@@ -546,30 +363,20 @@ public class VisionGUI extends JPanel implements NodeMain {
             paintVisionImage(g2d);
 
         lastFrameTime = System.currentTimeMillis() - startTime;
-
-        // System.err.println("frame time = " + lastFrameTime);
     }
 
-    /**
-     * <p>
-     * Paint {@link #visionImage}.
-     * </p>
-     * 
-     * @param g2d
-     *            the graphics context
-     **/
-    protected void paintVisionImage(Graphics2D g2d) {
 
-        // avoid NPE on init
-        if (visionImage == null)
+    protected void paintVisionImage(Graphics2D g2d) {
+        if (visionImageBlock == null || visionImageFiducial == null)
             return;
 
-        synchronized (visionImage) {
-            visionImage.paint(g2d);
+        synchronized (visionImageBlock) {
+            visionImageBlock.paint(g2d);
+        }       
+        synchronized (visionImageFiducial) {
+        	visionImageFiducial.paint(g2d);
         }
     }
-
-
 
     /**
      * <p>
@@ -607,12 +414,12 @@ public class VisionGUI extends JPanel implements NodeMain {
                 } else {
                     rgbData = message.getData().array();
                 }
-                setVisionImage(rgbData, (int) message.getWidth(),
+                setVisionImageBlock(rgbData, (int) message.getWidth(),
                                (int) message.getHeight());
+                setVisionImageFiducial(rgbData, (int) message.getWidth(),
+                        (int) message.getHeight());
             }
         });
-
-        //publisher = node.newPublisher("command/Motors", "rss_msgs/MotionMsg");
     }
 
     /**
@@ -623,11 +430,6 @@ public class VisionGUI extends JPanel implements NodeMain {
     protected void testGraphics() {
 
         try {
-
-            // for (int i = 0; i < 5000; i++)
-            // setRobotPose(Math.random(), Math.random(),
-            // (Math.random()-0.5)*2.0*Math.PI);
-
             byte[] testImage = new byte[256 * 256 * 3];
 
             int index = 0;
@@ -639,33 +441,16 @@ public class VisionGUI extends JPanel implements NodeMain {
                     testImage[index++] = val;
                 }
             }
-
-            setVisionImage(testImage, 256, 256);
-
+            setVisionImageBlock(testImage, 256, 256);
             Thread.sleep(1000);
-
-            setVisionImage(testImage, 100, 100);
-
+            setVisionImageBlock(testImage, 100, 100);
             Thread.sleep(1000);
-
-            eraseVisionImage();
-
-            testGraphicsHook();
-
+            eraseVisionImageBlock();
             for (;;)
                 Thread.sleep(1000);
-
         } catch (InterruptedException e) {
             // ignore
         }
-    }
-
-    /**
-     * <p>
-     * Hook to append to the end of {@link #testGraphics}.
-     * </p>
-     **/
-    protected void testGraphicsHook() throws InterruptedException {
     }
 
     @Override
