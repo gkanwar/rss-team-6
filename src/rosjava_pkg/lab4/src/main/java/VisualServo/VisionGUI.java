@@ -10,20 +10,7 @@ import java.awt.RenderingHints;
 import java.awt.image.MemoryImageSource;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JToolTip;
 import javax.swing.SwingUtilities;
-
-/*
-import org.ros.message.MessageListener;
-import rss_msgs.MotionMsg;
-import rss_msgs.OdometryMsg;
-import org.ros.namespace.GraphName;
-import org.ros.node.ConnectedNode;
-import org.ros.node.Node;
-import org.ros.node.NodeMain;
-import org.ros.node.topic.Publisher;
-import org.ros.node.topic.Subscriber;*/
-
 
 public class VisionGUI extends JPanel {
     public static final String APPNAME = "VisionGUI";
@@ -279,7 +266,6 @@ public class VisionGUI extends JPanel {
         paintComponent((Graphics2D) g);
     }
 
-
     protected void paintComponent(Graphics2D g2d) {
         super.paintComponent(g2d);
         paintContents(g2d);
@@ -343,91 +329,26 @@ public class VisionGUI extends JPanel {
         lastFrameTime = System.currentTimeMillis() - startTime;
     }
 
-
     protected void paintVisionImage(Graphics2D g2d) {
-        if (visionImageBlock == null || visionImageFiducial == null)
-            return;
-
-        synchronized (visionImageBlock) {
-            visionImageBlock.paint(g2d);
-        }       
-        synchronized (visionImageFiducial) {
-        	visionImageFiducial.paint(g2d);
+        if (srcBlockImage != null) {
+	        synchronized (srcBlockImage) {
+	            srcBlockImage.paint(g2d);
+	        }
         }
-    }
-
-    /**
-     * <p>
-     * Extends default impl to set white background.
-     * </p>
-     **/
-    @Override
-    public JToolTip createToolTip() {
-        JToolTip toolTip = super.createToolTip();
-        toolTip.setBackground(Color.WHITE);
-        return toolTip;
-    }
-
-
-  /*  *//**
-     * <p>
-     * See {@link #instanceMain}.
-     * </p>
-     **//*
-    @Override
-    public void onStart(final ConnectedNode node) {
-        this.node = node;
-
-        final boolean reverseRGB = node.getParameterTree().getBoolean(
-                "reverse_rgb", false);
-
-        vidSub = node.newSubscriber("/rss/low_video", "sensor_msgs/Image");
-        vidSub.addMessageListener(new MessageListener<sensor_msgs.Image>() {
-            @Override
-            public void onNewMessage(sensor_msgs.Image message) {
-                byte[] rgbData;
-                if (reverseRGB) {
-                    rgbData = Image.RGB2BGR(message.getData().array(), (int) message.getWidth(),
-                                            (int) message.getHeight());
-                } else {
-                    rgbData = message.getData().array();
-                }
-                setVisionImageBlock(rgbData, (int) message.getWidth(),
-                               (int) message.getHeight());
-                setVisionImageFiducial(rgbData, (int) message.getWidth(),
-                        (int) message.getHeight());
-            }
-        });
-    }*/
-
-    /**
-     * <p>
-     * Draw some things to test the graphics capabilities.
-     * </p>
-     **/
-    protected void testGraphics() {
-
-        try {
-            byte[] testImage = new byte[256 * 256 * 3];
-
-            int index = 0;
-            for (int r = 0; r < 256; r++) {
-                for (int c = 0; c < 256; c++) {
-                    byte val = (byte) c;
-                    testImage[index++] = val;
-                    testImage[index++] = val;
-                    testImage[index++] = val;
-                }
-            }
-            setVisionImageBlock(testImage, 256, 256);
-            Thread.sleep(1000);
-            setVisionImageBlock(testImage, 100, 100);
-            Thread.sleep(1000);
-            eraseVisionImageBlock();
-            for (;;)
-                Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            // ignore
+        if (srcFiducialImage != null) {
+        	synchronized (srcFiducialImage) {
+        		srcFiducialImage.paint(g2d);
+        	}
+        }
+        if (destBlockImage != null) {
+        	synchronized (destBlockImage) {
+        		destBlockImage.paint(g2d);
+        	}
+        }
+        if (destFiducialImage != null) {
+        	synchronized (destFiducialImage) {
+        		destFiducialImage.paint(g2d);
+        	}
         }
     }
 }
