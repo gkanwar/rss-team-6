@@ -28,8 +28,8 @@ import org.ros.node.topic.Subscriber;*/
 public class VisionGUI extends JPanel {
     public static final String APPNAME = "VisionGUI";
     static final long serialVersionUID = 42;
-    public static final int DEFAULT_WIDTH = 400;
-    public static final int DEFAULT_HEIGHT = 200;
+    public static final int DEFAULT_WIDTH = 320;
+    public static final int DEFAULT_HEIGHT = 160;
 
     /**
      * <p>
@@ -179,13 +179,10 @@ public class VisionGUI extends JPanel {
         }
     }
 
-    /**
-     * <p>
-     * The one {@link VisionGUI.VisionImage}.
-     * </p>
-     **/
-    protected VisionImage visionImageBlock = new VisionImage(0,0);
-    protected VisionImage visionImageFiducial = new VisionImage(160,0);
+    protected VisionImage srcFiducialImage = new VisionImage(0,0);
+    protected VisionImage srcBlockImage = new VisionImage(0,120);
+    protected VisionImage destFiducialImage = new VisionImage(160,0);
+    protected VisionImage destBlockImage = new VisionImage(160,120);
 
     /**
      * Construct a new VisionGUI.
@@ -245,30 +242,35 @@ public class VisionGUI extends JPanel {
     public String getAppName() {
         return APPNAME;
     }
-
-    public void setVisionImageBlock(byte[] image, int width, int height) {
-        synchronized(visionImageBlock) {
-            visionImageBlock.set(image, width, height);
-        }
-        repaint();
-    }
     
-    public void setVisionImageFiducial(byte[] image, int width, int height) {
-    	synchronized(visionImageFiducial) {
-    		visionImageFiducial.set(image, width, height);
+    public void setVisionImage(byte[] srcBlock, byte[] srcFid, byte[] destBlock, byte[] destFid, int width, int height) {
+    	synchronized(srcBlockImage) {
+    		srcBlockImage.set(srcBlock, width, height);
+    	}
+    	synchronized(srcFiducialImage) {
+    		srcFiducialImage.set(srcFid, width, height);
+    	}
+    	synchronized(destBlockImage) {
+    		destBlockImage.set(destBlock, width, height);
+    	}
+    	synchronized(destFiducialImage) {
+    		destFiducialImage.set(destFid, width, height);
     	}
     	repaint();
     }
     
-    public void eraseVisionImageBlock() {
-        synchronized(visionImageBlock) {
-            visionImageBlock.unset();
-        }
-    }
-    
-    public void eraseVisionImageFiducial() {
-    	synchronized (visionImageFiducial) {
-    		visionImageFiducial.unset();
+    public void eraseVisionImage() {
+    	synchronized(srcBlockImage) {
+    		srcBlockImage.unset();
+    	}
+    	synchronized(srcFiducialImage) {
+    		srcFiducialImage.unset();
+    	}
+    	synchronized(destBlockImage) {
+    		destBlockImage.unset();
+    	}
+    	synchronized(destFiducialImage) {
+    		destFiducialImage.unset();
     	}
     }
 
