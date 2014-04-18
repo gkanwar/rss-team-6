@@ -39,7 +39,6 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
 
     public Subscriber<sensor_msgs.Image> vidSubBlock;
     public Subscriber<sensor_msgs.Image> vidSubFiducial;
-    public Subscriber<rss_msgs.OdometryMsg> odoSub;
 
     private Publisher<rss_msgs.BallLocationMsg> ballLocationPub;
 
@@ -201,19 +200,6 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
 				handleFiducial(rgbData);
 			}
 		});
-	
-        odoSub = node.newSubscriber("/rss/odometry", "rss_msgs/OdometryMsg");
-        odoSub.addMessageListener(new MessageListener<rss_msgs.OdometryMsg>() {
-            @Override
-            public void onNewMessage(
-                    rss_msgs.OdometryMsg message) {
-                if (firstUpdate) {
-                    firstUpdate = false;
-                    gui.resetWorldToView(message.getX(), message.getY());
-                }
-                gui.setRobotPose(message.getX(), message.getY(), message.getTheta());
-            }
-        });
         Thread runningStuff = new Thread(this);
         runningStuff.start();
     }
