@@ -140,9 +140,13 @@ public class VisionGUI extends JPanel implements NodeMain {
 
         int width = -1;
         int height = -1;
+        int x_start;
+        int y_start;
 
-        VisionImage() {
+        VisionImage(int x_start, int y_start) {
             unset();
+            this.x_start = x_start;
+            this.y_start = y_start;
         }
 
         void set(byte[] unpackedImage, int width, int height) {
@@ -199,7 +203,7 @@ public class VisionGUI extends JPanel implements NodeMain {
             if (image == null)
                 return;
 
-            g2d.drawImage(image, 0, 0, VisionGUI.this);
+            g2d.drawImage(image, x_start, y_start, VisionGUI.this);
         }
     }
 
@@ -208,8 +212,8 @@ public class VisionGUI extends JPanel implements NodeMain {
      * The one {@link VisionGUI.VisionImage}.
      * </p>
      **/
-    protected VisionImage visionImageBlock = new VisionImage();
-    protected VisionImage visionImageFiducial = new VisionImage();
+    protected VisionImage visionImageBlock = new VisionImage(0,0);
+    protected VisionImage visionImageFiducial = new VisionImage(160,0);
 
     /**
      * Construct a new VisionGUI.
