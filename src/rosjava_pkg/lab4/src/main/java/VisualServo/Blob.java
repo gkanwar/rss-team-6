@@ -2,6 +2,7 @@ package VisualServo;
 
 import java.awt.geom.Point2D;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,6 +56,7 @@ public class Blob {
 
 	public Blob(Set<Point2D.Double> points) {
 		this.points = points;
+		hullPoints = new HashSet<Point2D.Double>();
 		minYforGivenX = new HashMap<Integer,Integer>();
 		maxYforGivenX = new HashMap<Integer,Integer>();
 		minXforGivenY = new HashMap<Integer,Integer>();
