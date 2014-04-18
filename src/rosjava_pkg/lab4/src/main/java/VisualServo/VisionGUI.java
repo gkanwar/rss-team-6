@@ -16,7 +16,7 @@ public class VisionGUI extends JPanel {
     public static final String APPNAME = "VisionGUI";
     static final long serialVersionUID = 42;
     public static final int DEFAULT_WIDTH = 320;
-    public static final int DEFAULT_HEIGHT = 160;
+    public static final int DEFAULT_HEIGHT = 240;
 
     /**
      * <p>

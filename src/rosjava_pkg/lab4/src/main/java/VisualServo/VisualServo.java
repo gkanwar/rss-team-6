@@ -145,7 +145,7 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
         final boolean reverseRGB = node.getParameterTree().getBoolean(
                 "reverse_rgb", false);
 
-        vidSubBlock = node.newSubscriber("/rss/high_video", "sensor_msgs/Image");
+        vidSubBlock = node.newSubscriber("/rss/low_video", "sensor_msgs/Image");
 		vidSubBlock.addMessageListener(new MessageListener<sensor_msgs.Image>() {
             @Override
             public void onNewMessage(sensor_msgs.Image message) {
