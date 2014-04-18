@@ -1,6 +1,5 @@
 package VisualServo;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -8,35 +7,13 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.RoundRectangle2D;
 import java.awt.image.MemoryImageSource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JToolTip;
 import javax.swing.SwingUtilities;
-import javax.swing.event.MouseInputAdapter;
-import javax.swing.event.MouseInputListener;
 
+/*
 import org.ros.message.MessageListener;
 import rss_msgs.MotionMsg;
 import rss_msgs.OdometryMsg;
@@ -45,12 +22,10 @@ import org.ros.node.ConnectedNode;
 import org.ros.node.Node;
 import org.ros.node.NodeMain;
 import org.ros.node.topic.Publisher;
-import org.ros.node.topic.Subscriber;
+import org.ros.node.topic.Subscriber;*/
 
 
-public class VisionGUI extends JPanel implements NodeMain {
-
-    public Node node;
+public class VisionGUI extends JPanel {
     public static final String APPNAME = "VisionGUI";
     static final long serialVersionUID = 42;
     public static final int DEFAULT_WIDTH = 400;
@@ -114,9 +89,6 @@ public class VisionGUI extends JPanel implements NodeMain {
      * </p>
      **/
     public static final double UN_FORCE_FAST_RENDER_THRESHOLD = 5.0;
-
-    public Subscriber<OdometryMsg> odoSub;
-    public Subscriber<sensor_msgs.Image> vidSub;
 
     /**
      * A paintable graphical object.
@@ -395,11 +367,11 @@ public class VisionGUI extends JPanel implements NodeMain {
     }
 
 
-    /**
+  /*  *//**
      * <p>
      * See {@link #instanceMain}.
      * </p>
-     **/
+     **//*
     @Override
     public void onStart(final ConnectedNode node) {
         this.node = node;
@@ -424,7 +396,7 @@ public class VisionGUI extends JPanel implements NodeMain {
                         (int) message.getHeight());
             }
         });
-    }
+    }*/
 
     /**
      * <p>
@@ -456,25 +428,4 @@ public class VisionGUI extends JPanel implements NodeMain {
             // ignore
         }
     }
-
-    @Override
-    public void onShutdown(Node arg0) {
-        if (node != null) {
-            node.shutdown();
-        }
-    }
-
-    @Override
-    public void onShutdownComplete(Node node) {
-    }
-
-    @Override
-    public void onError(Node node, Throwable error) {
-    }
-
-    @Override
-    public GraphName getDefaultNodeName() {
-        return GraphName.of("rss/visiongui");
-    }
-
 }
