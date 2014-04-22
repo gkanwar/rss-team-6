@@ -185,14 +185,6 @@ public class Blob {
 		return points;
 	}
 
-	public double getRange() {
-		return range;
-	}
-
-	public double getBearing() {
-		return bearing;
-	}
-
 	public String getColor() {
 		return color;
 	}
