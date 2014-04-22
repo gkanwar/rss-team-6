@@ -26,6 +26,7 @@ add_message_files(FILES
   FiducialMsg.msg
   MapMsg.msg
   WaypointMsg.msg
+  VelocityMsg.msg
 )
 
 # Actually generate language-specific message files
