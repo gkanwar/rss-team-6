@@ -1,0 +1,1 @@
+PointMappingMsg[] mappings
