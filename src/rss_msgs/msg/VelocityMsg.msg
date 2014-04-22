@@ -1,0 +1,2 @@
+float64 translationVelocity
+float64 rotationVelocity
