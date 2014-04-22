@@ -88,7 +88,7 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
             fiducialTracker.applyFiducial(srcFiducial, destFiducial);
 
             // update newly formed vision message
-            gui.setVisionImage(srcBlock.toArray(),srcFiducial.toArray(),destBlock.toArray(),destBlock.toArray(),width,height);
+            gui.setVisionImage(srcBlock.toArray(),srcFiducial.toArray(),destBlock.toArray(),destFiducial.toArray(),width,height);
 
 	    /*	
             // Begin Student Code
