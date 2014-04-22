@@ -124,22 +124,47 @@ public class BlobTrackingChallenge {
 		// Interpret the image
 		Set<Blob> hueConstantRegions = findHueConstantRegions();
 		Set<Blob> discoveredObjects = findObjectRegions(hueConstantRegions);
-		//List<Blob> discoveredSpheres = findSpheres(discoveredObjects);
-		List<Blob> discoveredSpheres = new ArrayList<Blob>(discoveredObjects);
+		List<Blob> discoveredSpheres = findSpheres(discoveredObjects);
+		
+		//Color blobs gray
 		int grayscale = 50;
+		for (Blob blob : discoveredObjects) {
+			Set<Point2D.Double> blobPoints = blob.getPoints();
+			if (blobPoints.size() > 100) {
+				for (Point2D.Double point : blobPoints) {
+					dest.setPixel((int) point.x, (int) point.y, (byte) grayscale,
+							(byte) grayscale, (byte) grayscale);
+				}
+				grayscale += 50;
+			}
+		}
+		
+		//Color spheres red and spaced correctly spheres green
+		for (Blob blob : discoveredSpheres) {
+			Set<Point2D.Double> blobPoints = blob.getPoints();
+			for (Point2D.Double point : blobPoints) {
+				dest.setPixel((int) point.x, (int) point.y, (byte) 255, (byte) 0, (byte) 0);
+			}
+			if (blob.isValidHorizontalFiducial(height)) {
+				for (Point2D.Double point : blobPoints) {
+					dest.setPixel((int) point.x, (int) point.y, (byte) 0, (byte) 255, (byte) 0);
+				}
+			}
+		}
+			
+		//Color fiducials blue
 		for (int i=0; i<discoveredSpheres.size(); i++) {
 			for (int j=i+1; j<discoveredSpheres.size(); j++) {
-				/*if (discoveredSpheres.get(i).formsFiducial(discoveredSpheres.get(j), width, height)) {
+				if (discoveredSpheres.get(i).formsFiducial(discoveredSpheres.get(j), width, height)) {
 					// send message
 					Set<Point2D.Double> blobPoints1 = discoveredSpheres.get(i).getPoints();
 					Set<Point2D.Double> blobPoints2 = discoveredSpheres.get(j).getPoints();
 					blobPoints1.addAll(blobPoints2);
 					for (Point2D.Double point : blobPoints1) {
-						dest.setPixel((int) point.x, (int) point.y, (byte) grayscale,
-								(byte) grayscale, (byte) grayscale);
+						dest.setPixel((int) point.x, (int) point.y, (byte) 0,
+								(byte) 0, (byte) 255);
 					}
-					grayscale += 50;
-				}*/
+				}
 			}
 		}
 	}
@@ -269,7 +294,7 @@ public class BlobTrackingChallenge {
 			//System.out.println("object: " + (blob.isObject(currentHues)));
 			if (blob.getSize() > sizeThreshold && !blob.pointsOnEdge(width, height) && blob.isObject(currentHSV)) {
 				objectBlobs.add(blob);
-				blob.calculateBasics();
+				blob.calculateBasics(width, height);
 			}
 		}
 		return objectBlobs;

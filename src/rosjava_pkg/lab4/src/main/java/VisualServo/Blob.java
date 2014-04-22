@@ -9,7 +9,9 @@ import java.util.Set;
 public class Blob {
 	private final double circleThreshold = 0.3;
 	private final double verticalAlignThreshold = 0.2;
-	private final double horizontalAlignThreshold = 0.3;
+	private final double horizontalAlignThreshold = 0.15;
+	private final double blockSize = 0.06;
+	private final double sphereSize = 0.1;
 	
 	private Set<Point2D.Double> points;
 	private Set<Point2D.Double> hullPoints;
@@ -20,8 +22,6 @@ public class Blob {
 	
 	private int hueAvg;
 	private String color;
-	private boolean isObject;
-	
 	
 	public double centroidX;
 	public double centroidY;
@@ -29,9 +29,6 @@ public class Blob {
 	public double height;
 	
 	private double hue;
-	private double range;
-	private double bearing;
-	
 
 	public static enum ObjectMatch {
 		RED(246,13), 
@@ -85,12 +82,10 @@ public class Blob {
 		for (ObjectMatch potential : ObjectMatch.values()) {
 			if (Image.hueWithinRange(hueAvg, potential.minHue, potential.maxHue)) {
 				color = potential.name();
-				isObject = true;
 				return true;
 			}
 		}
 		color = "NA";
-		isObject = false;
 		return false;
 	}
 	
@@ -138,12 +133,12 @@ public class Blob {
 		}
 	}
 
-	public void calculateBasics() {
+	public void calculateBasics(int imgWidth, int imgHeight) {
 		double sumX = 0;
-		double minX = width;
+		double minX = imgWidth;
 		double maxX = 0;
 		double sumY = 0;
-		double minY = height;
+		double minY = imgHeight;
 		double maxY = 0;
 		double sumHue = 0;
 
@@ -161,10 +156,6 @@ public class Blob {
 		width = maxX - minX;
 		height = maxY - minY;
 		hue = sumHue / points.size();
-
-		calculateRange();
-		calculateBearing();
-		calculateShape();
 	}
 	
 	public boolean formsFiducial(Blob second, int imgWidth, int imgHeight) {
@@ -178,16 +169,16 @@ public class Blob {
 				(Math.abs(this.centroidY - this.height/2 - imgHeight/2) <= horizontalAlignThreshold*imgHeight));
 	}
 
-	private void calculateRange() {
-
+	private double calculateRangeBlock() {
+		return blockSize*160/this.width*0.29/0.28;
+	}
+	
+	private double calculateRangeFiducial() {
+		return sphereSize*160/this.width*0.29/0.28;
 	}
 
-	private void calculateBearing() {
-
-	}
-
-	private void calculateShape() {
-
+	private double calculateBearing(int imgWidth) {
+		return (imgWidth/2 - centroidX)*Math.atan2(14.0, 29.0)/80;
 	}
 
 	public Set<Point2D.Double> getPoints() {
