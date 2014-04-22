@@ -124,11 +124,12 @@ public class BlobTrackingChallenge {
 		// Interpret the image
 		Set<Blob> hueConstantRegions = findHueConstantRegions();
 		Set<Blob> discoveredObjects = findObjectRegions(hueConstantRegions);
-		List<Blob> discoveredSpheres = findSpheres(discoveredObjects);
+		//List<Blob> discoveredSpheres = findSpheres(discoveredObjects);
+		List<Blob> discoveredSpheres = new ArrayList<Blob>(discoveredObjects);
 		int grayscale = 50;
 		for (int i=0; i<discoveredSpheres.size(); i++) {
 			for (int j=i+1; j<discoveredSpheres.size(); j++) {
-				if (discoveredSpheres.get(i).formsFiducial(discoveredSpheres.get(j), width, height)) {
+				/*if (discoveredSpheres.get(i).formsFiducial(discoveredSpheres.get(j), width, height)) {
 					// send message
 					Set<Point2D.Double> blobPoints1 = discoveredSpheres.get(i).getPoints();
 					Set<Point2D.Double> blobPoints2 = discoveredSpheres.get(j).getPoints();
@@ -138,7 +139,7 @@ public class BlobTrackingChallenge {
 								(byte) grayscale, (byte) grayscale);
 					}
 					grayscale += 50;
-				}
+				}*/
 			}
 		}
 	}

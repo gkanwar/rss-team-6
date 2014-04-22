@@ -85,7 +85,7 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
             Image destBlock = new Image(srcBlock);
             blockTracker.applyBlock(srcBlock, destBlock);
             Image destFiducial = new Image(srcFiducial);
-            //fiducialTracker.applyFiducial(srcFiducial, destFiducial);
+            fiducialTracker.applyFiducial(srcFiducial, destFiducial);
 
             // update newly formed vision message
             gui.setVisionImage(srcBlock.toArray(),srcFiducial.toArray(),destBlock.toArray(),destBlock.toArray(),width,height);
@@ -130,7 +130,7 @@ public class VisualServo extends AbstractNodeMain implements Runnable {
     @Override
     public void onStart(final ConnectedNode node) {
         blockTracker = new BlobTrackingChallenge(width, height, false, false, 2, 90, 1, 200);
-        fiducialTracker = new BlobTrackingChallenge(width, height, false, false, 2, 90, 1, 200);
+        fiducialTracker = new BlobTrackingChallenge(width, height, true, false, 2, 90, 1, 200);
 
         // Begin Student Code
 
