@@ -11,11 +11,17 @@ find_package(catkin REQUIRED
 add_message_files(FILES
   ColorMsg.msg
   GUIEraseMsg.msg
+  GUIGraphMsg.msg
   GUILineMsg.msg
+  GUIPathMsg.msg
   GUIPointMsg.msg
+  GUIPolyMsg.msg
+  GUIRectMsg.msg
   GUISegmentMsg.msg
   GUIPolyMsg.msg
   GUIRectMsg.msg
+  PointDataMsg.msg
+  PointMappingMsg.msg
 )
 
 # Actually generate language-specific message files
