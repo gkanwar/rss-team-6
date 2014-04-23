@@ -16,6 +16,7 @@ add_message_files(FILES
   BumpMsg.msg
   DigitalStatusMsg.msg
   EncoderMsg.msg
+  InitializedMsg.msg
   MotionMsg.msg
   OdometryMsg.msg
   PositionTargetMsg.msg
