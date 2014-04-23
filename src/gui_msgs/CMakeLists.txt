@@ -13,6 +13,7 @@ add_message_files(FILES
   GUIEraseMsg.msg
   GUIGraphMsg.msg
   GUILineMsg.msg
+  GUIParticleCloudMsg.msg
   GUIPathMsg.msg
   GUIPointMsg.msg
   GUIPolyMsg.msg
