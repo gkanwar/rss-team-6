@@ -1,1 +1,1 @@
-float64[2] sonarValues
+float64[4] sonarValues
