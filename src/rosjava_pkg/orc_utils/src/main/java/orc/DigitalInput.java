@@ -20,13 +20,16 @@ public class DigitalInput
     }
     
     public boolean getValue() {
-        final OrcStatus os = this.orc.getStatus();
+        return getValue(this.orc.getStatus());
+    }
+
+    public boolean getValue(final OrcStatus status) {
         boolean v;
         if (this.port < 8) {
-            v = ((os.simpleDigitalValues & 1 << this.port) != 0x0);
+            v = ((status.simpleDigitalValues & 1 << this.port) != 0x0);
         }
         else {
-            v = (os.fastDigitalConfig[this.port - 8] != 0);
+            v = (status.fastDigitalConfig[this.port - 8] != 0);
         }
         return v ^ this.invert;
     }

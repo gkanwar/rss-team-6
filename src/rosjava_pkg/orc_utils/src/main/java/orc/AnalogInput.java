@@ -13,12 +13,18 @@ public class AnalogInput
     }
     
     public double getVoltage() {
-        final OrcStatus status = this.orc.getStatus();
+        return getVoltage(this.orc.getStatus());
+    }
+
+    public double getVoltage(final OrcStatus status) {
         return status.analogInputFiltered[this.port] / 65535.0 * 5.0;
     }
     
     public double getVoltageUnfiltered() {
-        final OrcStatus status = this.orc.getStatus();
+        return getVoltageUnfiltered(this.orc.getStatus());
+    }
+
+    public double getVoltageUnfiltered(final OrcStatus status) {
         return status.analogInput[this.port] / 65535.0 * 5.0;
     }
     
