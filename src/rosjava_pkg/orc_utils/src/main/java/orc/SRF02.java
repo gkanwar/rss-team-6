@@ -33,12 +33,16 @@ public class SRF02
     }
     
     public double measure() {
-        this.ping();
+        synchronized(orc) {
+            this.ping();
+        }
         try {
             Thread.sleep(70L);
         }
         catch (InterruptedException ex) {}
-        return this.readRange();
+        synchronized(orc) {
+            return this.readRange();
+        }
     }
     
     public static void main(final String[] args) {
