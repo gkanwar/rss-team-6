@@ -6,6 +6,7 @@ include 'path_planning'
 include 'state_machine'
 include 'localization'
 include 'orc_utils'
+include 'sim_orc_utils'
 
 /*
 Uncomment once vision has code
