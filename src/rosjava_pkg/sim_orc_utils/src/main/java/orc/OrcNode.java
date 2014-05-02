@@ -87,6 +87,7 @@ public class OrcNode extends AbstractNodeMain {
                     fidMsg.setRange(reading[1]);
                     fidMsg.setTop((long)colors.getX());
                     fidMsg.setBottom((long)colors.getY());
+                    fidMsg.setTime(utime/1000000.0);
                     fidPub.publish(fidMsg);
                 }
 
