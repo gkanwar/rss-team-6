@@ -83,11 +83,12 @@ public class OrcNode extends AbstractNodeMain {
                 for (Point2D.Double colors : fids.keySet()) {
                     double[] reading = map.predictFiducials(x, y, theta, (int)colors.getX(), (int)colors.getY());
                     FiducialMsg fidMsg = fidPub.newMessage();
-                    fidMsg.setBearing(reading[0]);
-                    fidMsg.setRange(reading[1]);
+                    fidMsg.setRange(reading[0]);
+                    fidMsg.setBearing(reading[1]);
                     fidMsg.setTop((long)colors.getX());
                     fidMsg.setBottom((long)colors.getY());
-                    fidMsg.setTime(utime/1000000.0);
+                    // Fiducial message time is relative to system time
+                    fidMsg.setTime(System.currentTimeMillis());
                     fidPub.publish(fidMsg);
                 }
 
