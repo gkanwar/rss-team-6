@@ -1,6 +1,7 @@
 package orc;
 
 import java.awt.geom.Point2D;
+import java.util.Map;
 
 import org.ros.message.MessageListener;
 import org.ros.namespace.GraphName;
@@ -10,6 +11,7 @@ import org.ros.node.parameter.ParameterTree;
 import org.ros.node.topic.Subscriber;
 import org.ros.node.topic.Publisher;
 
+import rss_msgs.FiducialMsg;
 import rss_msgs.MotorVelMsg;
 import rss_msgs.SimulatorMsg;
 
@@ -22,6 +24,7 @@ public class OrcNode extends AbstractNodeMain {
 
     private Subscriber<MotorVelMsg> motorVelSub;
     private Publisher<SimulatorMsg> simPub;
+    private Publisher<FiducialMsg> fidPub;
 
     private PolygonMap map;
     private double x, y, theta;
@@ -76,6 +79,16 @@ public class OrcNode extends AbstractNodeMain {
                 msg.setMotorRight(motorRight);
                 msg.setUtime(utime);
                 simPub.publish(msg);
+                Map<Point2D.Double, Point2D.Double> fids = map.getFiducials();
+                for (Point2D.Double colors : fids.keySet()) {
+                    double[] reading = map.predictFiducials(x, y, theta, (int)colors.getX(), (int)colors.getY());
+                    FiducialMsg fidMsg = fidPub.newMessage();
+                    fidMsg.setBearing(reading[0]);
+                    fidMsg.setRange(reading[1]);
+                    fidMsg.setTop((long)colors.getX());
+                    fidMsg.setBottom((long)colors.getY());
+                    fidPub.publish(fidMsg);
+                }
 
                 try {
                     Thread.sleep(100);
@@ -119,6 +132,7 @@ public class OrcNode extends AbstractNodeMain {
 
         // Publishers
         simPub = node.newPublisher("/sim/Simulator", "rss_msgs/SimulatorMsg");
+        fidPub = node.newPublisher("/vision/FiducialLocation", "rss_msgs/FiducialMsg");
 
         // Fire up physics updates
         new PhysicsThread().start();
