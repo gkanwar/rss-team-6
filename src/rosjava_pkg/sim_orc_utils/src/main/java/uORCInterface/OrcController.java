@@ -2,6 +2,8 @@ package uORCInterface;
 
 import orc.*;
 
+import org.ros.node.ConnectedNode;
+
 public class OrcController implements OrcControlInterface
 {
     private Orc orc;
@@ -113,6 +115,14 @@ public class OrcController implements OrcControlInterface
             System.out.println("Out of bound: the port must be 0~2");
             System.exit(1);
         }
+    }
+
+    public boolean isSim() {
+        return true;
+    }
+
+    public void setNode(ConnectedNode node) {
+        this.orc.setNode(node);
     }
     
     static {

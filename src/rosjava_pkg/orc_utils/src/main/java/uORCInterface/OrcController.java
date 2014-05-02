@@ -115,6 +115,12 @@ public class OrcController implements OrcControlInterface
             System.exit(1);
         }
     }
+
+    public boolean isSim() {
+        return false;
+    }
+
+    public void setNode(Object obj) {}
     
     static {
         DIGITAL_SETUP = new boolean[] { true, true, true, true, true, true, true, true, false, false, false, false, false, true, false, true };

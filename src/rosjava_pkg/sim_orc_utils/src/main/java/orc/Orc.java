@@ -3,16 +3,23 @@ package orc;
 import java.util.*;
 import java.net.*;
 import java.io.*;
-import java.awt.geom.Point2D;
-import map.PolygonMap;
-import odometry.Odometry;
+import java.text.ParseException;
+import org.ros.message.MessageListener;
+import org.ros.node.ConnectedNode;
+import org.ros.node.topic.Publisher;
+import org.ros.node.topic.Subscriber;
 import org.ros.node.parameter.ParameterTree;
+import rss_msgs.MotorVelMsg;
+import rss_msgs.SimulatorMsg;
+import map.PolygonMap;
 
 public class Orc
 {
-    private static final double MAX_MOTOR_ANGVEL = 8.0;
-
     private static Orc instance = null;
+
+    private ConnectedNode node;
+    private Subscriber<SimulatorMsg> simSub;
+    private Publisher<MotorVelMsg> motPub;
 
     private PolygonMap map;
     private double x, y, theta;
@@ -27,73 +34,31 @@ public class Orc
         }
         return instance;
     }
+
+    public void update(SimulatorMsg msg) {
+        this.x = msg.getX();
+        this.y = msg.getY();
+        this.theta = msg.getTheta();
+        this.posLeft = msg.getPosLeft();
+        this.posRight = msg.getPosRight();
+        this.velLeft = msg.getVelLeft();
+        this.velRight = msg.getVelRight();
+        this.motorLeft = msg.getMotorLeft();
+        this.motorRight = msg.getMotorRight();
+        this.utime = msg.getUtime();
+    }
     
-    private Orc() {
-        //ParameterTree paramTree = node.getParameterTree();
-        //final String mapFile = paramTree.getString(node.resolveName("/loc/mapFileName"));
-        final String mapFile = "/home/gurtej/rss-team-6/src/rosjava_pkg/maps/global-nav-maze-2011-basic.map";
-        try {
-            map = new PolygonMap(mapFile);
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Map file failed to load.");
-        }
-        Point2D.Double robotStart = map.getRobotStart();
-        x = robotStart.x;
-        y = robotStart.y;
-        theta = 0;
-        utime = System.nanoTime()/1000;
-
-        // Fire up physics updates
-        new PhysicsThread().start();
-    }
-
-    private class PhysicsThread extends Thread {
-        @Override
-        public void run() {
-            while (true) {
-                long deltaUTime = System.nanoTime()/1000 - utime;
-                double deltaTime = deltaUTime/1000000.0; // Convert to seconds
-                //System.out.println("Physics update: " + deltaTime);
-                System.out.println("Motors: " + motorLeft + "," + motorRight);
-                // Update "board" time
-                utime += deltaUTime;
-                // Physics
-                double leftAngVel = MAX_MOTOR_ANGVEL * motorLeft;
-                double leftLinear = leftAngVel * Odometry.WHEEL_RADIUS_IN_M;
-                double rightAngVel = MAX_MOTOR_ANGVEL * motorRight * -1; // Right motor is flipped
-                double rightLinear = rightAngVel * Odometry.WHEEL_RADIUS_IN_M;
-                double transVel = (leftLinear+rightLinear)/2.0;
-                double rotVel = (leftLinear-rightLinear)/Odometry.WHEELBASE;
-                System.out.println("Transvel: " + transVel + ", rotvel: " + rotVel);
-                // Just do trans then rot
-                double dist = transVel * deltaTime;
-                x += dist * Math.cos(theta);
-                y += dist * Math.sin(theta);
-                theta += rotVel * deltaTime;
-                // Normalize theta
-                theta = theta % (Math.PI*2);
-                if (theta < 0) theta += Math.PI*2;
-                System.out.println("x:" + x + ",y:" + y + ",theta:" + theta);
-                // Now update orc "board" encoder info
-                velLeft = leftAngVel * Odometry.TICKS_PER_REVOLUTION / (Math.PI * 2);
-                velRight = rightAngVel * Odometry.TICKS_PER_REVOLUTION / (Math.PI * 2);
-                posLeft += (int)(deltaTime * velLeft);
-                posRight += (int)(deltaTime * velRight);
-
-                try {
-                    Thread.sleep(100);
-                }
-                catch (InterruptedException e) {}
-            }
-        }
-    }
+    private Orc() {}
     
     public OrcStatus getStatus() {
         return new OrcStatus(this, map, x, y, theta);
     }
 
     public void setMotorVel(int port, double v) {
+        MotorVelMsg msg = motPub.newMessage();
+        msg.setPort(port);
+        msg.setVel(v);
+        motPub.publish(msg);
         if (port == 0) {
             motorLeft = v;
         }
@@ -131,5 +96,35 @@ public class Orc
 
     public long getUTime() {
         return utime;
+    }
+
+    public boolean isSim() {
+        return true;
+    }
+
+    public void setNode(ConnectedNode node) {
+        this.node = node;
+        ParameterTree paramTree = node.getParameterTree();
+        final String mapFile = paramTree.getString(node.resolveName("/loc/mapFileName"));
+        try {
+            map = new PolygonMap(mapFile);
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Orc sim couldn't load map file");
+        }
+        catch (ParseException e) {
+            throw new RuntimeException("Orc sim couldn't load map file");
+        }
+
+        // Subscribe to simulator updates
+        simSub = node.newSubscriber("/sim/Simulator", "rss_msgs/SimulatorMsg");
+        simSub.addMessageListener(
+            new MessageListener<SimulatorMsg>() {
+                @Override public void onNewMessage(SimulatorMsg msg) {
+                    Orc.this.update(msg);
+                }
+            });
+
+        motPub = node.newPublisher("/sim/MotorVel", "rss_msgs/MotorVelMsg");
     }
 }

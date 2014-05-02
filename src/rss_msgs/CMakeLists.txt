@@ -18,10 +18,12 @@ add_message_files(FILES
   EncoderMsg.msg
   InitializedMsg.msg
   MotionMsg.msg
+  MotorVelMsg.msg
   OdometryMsg.msg
   PositionTargetMsg.msg
   ResetMsg.msg
   ReverseMsg.msg
+  SimulatorMsg.msg
   SonarMsg.msg
   PositionMsg.msg
   FiducialMsg.msg

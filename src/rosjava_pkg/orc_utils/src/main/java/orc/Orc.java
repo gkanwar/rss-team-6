@@ -301,4 +301,10 @@ public class Orc
             }
         }
     }
+
+    public boolean isSim() {
+        return false;
+    }
+
+    public void setNode(Object obj) {}
 }
