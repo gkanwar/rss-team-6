@@ -7,11 +7,7 @@ include 'state_machine'
 include 'localization'
 include 'orc_utils'
 include 'sim_orc_utils'
-
-/*
-Uncomment once vision has code
 include 'vision'
-*/
 
 /*
 include 'rosjava_prj_example'
